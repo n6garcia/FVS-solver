@@ -69,12 +69,3 @@ for i in range(len(strings)):
 # dump dictionary
 with open("cleaned/A.json", "w") as outfile:
     json.dump(dict, outfile, indent=2)
-
-
-# print dictionary    
-#for name in dict:
-#    print(dict[name])
-
-# Print all String Definitions
-#for string in strings:
-#    print(string)

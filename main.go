@@ -99,14 +99,30 @@ func (g *Graph) Print() {
 }
 
 type Dictionary struct {
-	name string
+	definitions []*Definiton
 }
 
-func loadData(fn string) *Dictionary {
+type Definiton struct {
+	name  string
+	words []string
+}
+
+func (d *Dictionary) addDef(n string, w []string) {
+	d.definitions = append(d.definitions, &Definiton{name: n, words: w})
+}
+
+func (d *Dictionary) Print() {
+	for _, v := range d.definitions {
+		fmt.Println("name: ", v.name)
+		fmt.Println("words: ", v.words)
+	}
+}
+
+func (d *Dictionary) loadData(fn string) {
 	file, err := os.Open("wrangle/cleaned/" + fn)
 	if err != nil {
 		fmt.Println("error loading json")
-		return nil
+		return
 	}
 	defer file.Close()
 
@@ -129,17 +145,15 @@ func loadData(fn string) *Dictionary {
 	json.Unmarshal(bytes, &myData)
 
 	for k, v := range myData {
-		fmt.Printf("Key is %v and value is %v and Type is: %T\n", k, v, v)
+		var words []string
 		for _, u := range v {
-			fmt.Println(u.(string))
+			words = append(words, u.(string))
 		}
+		d.addDef(k, words)
 	}
-
-	return nil
 }
 
 func main() {
-	fmt.Println("starting!")
 
 	tGraph := &Graph{}
 
@@ -158,6 +172,11 @@ func main() {
 
 	tGraph.Print()
 
-	loadData("A.json")
+	dict := &Dictionary{}
+
+	dict.loadData("A.json")
+	dict.loadData("B.json")
+
+	//dict.Print()
 
 }
