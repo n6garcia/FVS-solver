@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"strconv"
 )
 
 type Graph struct {
@@ -137,8 +136,7 @@ func (d *Dictionary) loadData(fn string) {
 
 	bytes := []byte(txt)
 
-	fmt.Println("\nisValid: ")
-	fmt.Println(json.Valid(bytes))
+	fmt.Println("\nisValid: ", json.Valid(bytes))
 
 	var myData map[string][]interface{}
 
@@ -153,10 +151,28 @@ func (d *Dictionary) loadData(fn string) {
 	}
 }
 
+func (g *Graph) AddData(d *Dictionary) {
+	// add vertices
+	for _, v := range d.definitions {
+		g.AddVertex(v.name)
+		for _, word := range v.words {
+			g.AddVertex(word)
+		}
+	}
+
+	// add edges
+	for _, v := range d.definitions {
+		for _, word := range v.words {
+			g.AddEdge(v.name, word)
+		}
+	}
+}
+
 func main() {
 
 	tGraph := &Graph{}
 
+	/* Testing!
 	for i := 0; i < 5; i++ {
 		tGraph.AddVertex(strconv.Itoa(i))
 	}
@@ -171,12 +187,19 @@ func main() {
 	tGraph.deleteVertex(strconv.Itoa(2))
 
 	tGraph.Print()
+	*/
 
 	dict := &Dictionary{}
 
-	dict.loadData("A.json")
-	dict.loadData("B.json")
+	/* load all files
+	for ch := 'A'; ch <= 'Z'; ch++ {
+		dict.loadData(string(ch) + ".json")
+	}*/
 
-	//dict.Print()
+	dict.loadData("A.json")
+
+	tGraph.AddData(dict)
+
+	tGraph.Print()
 
 }
