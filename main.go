@@ -1,7 +1,10 @@
 package main
 
 import (
+	"bufio"
+	"encoding/json"
 	"fmt"
+	"os"
 	"strconv"
 )
 
@@ -95,6 +98,46 @@ func (g *Graph) Print() {
 	}
 }
 
+type Dictionary struct {
+	name string
+}
+
+func loadData(fn string) *Dictionary {
+	file, err := os.Open("wrangle/cleaned/" + fn)
+	if err != nil {
+		fmt.Println("error loading json")
+		return nil
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+
+	var txt string
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		txt = txt + line
+	}
+
+	bytes := []byte(txt)
+
+	fmt.Println("\nisValid: ")
+	fmt.Println(json.Valid(bytes))
+
+	var myData map[string][]interface{}
+
+	json.Unmarshal(bytes, &myData)
+
+	for k, v := range myData {
+		fmt.Printf("Key is %v and value is %v and Type is: %T\n", k, v, v)
+		for _, u := range v {
+			fmt.Println(u.(string))
+		}
+	}
+
+	return nil
+}
+
 func main() {
 	fmt.Println("starting!")
 
@@ -114,4 +157,7 @@ func main() {
 	tGraph.deleteVertex(strconv.Itoa(2))
 
 	tGraph.Print()
+
+	loadData("A.json")
+
 }
