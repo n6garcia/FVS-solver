@@ -1,7 +1,9 @@
 import csv
 import json 
 
-file = open('dict/A.csv')
+fn = "Z"
+
+file = open('dict/'+fn+'.csv')
 
 csvreader = csv.reader(file)
 
@@ -67,5 +69,5 @@ for i in range(len(strings)):
 
 
 # dump dictionary
-with open("cleaned/A.json", "w") as outfile:
+with open("cleaned/"+fn+".json", "w") as outfile:
     json.dump(dict, outfile, indent=2)
