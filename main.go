@@ -12,14 +12,13 @@ type Graph struct {
 }
 
 type Vertex struct {
-	key      string
-	adjacent []*Vertex
+	key     string
+	outList []*Vertex
+	inList  []*Vertex
 }
 
 func (g *Graph) AddVertex(k string) {
-	if contains(g.vertices, k) {
-		fmt.Println("vertex already exists!")
-	} else {
+	if !contains(g.vertices, k) {
 		g.vertices = append(g.vertices, &Vertex{key: k})
 	}
 }
@@ -40,8 +39,20 @@ func (g *Graph) AddEdge(from string, to string) {
 	if fromVertex == nil || toVertex == nil {
 		fmt.Println("cannot add edge")
 	} else {
-		fromVertex.adjacent = append(fromVertex.adjacent, toVertex)
+		if !containsEdge(fromVertex, to) {
+			fromVertex.outList = append(fromVertex.outList, toVertex)
+			toVertex.inList = append(toVertex.inList, fromVertex)
+		}
 	}
+}
+
+func containsEdge(from *Vertex, to string) bool {
+	for _, v := range from.outList {
+		if v.key == to {
+			return true
+		}
+	}
+	return false
 }
 
 func (g *Graph) getVertex(k string) *Vertex {
@@ -64,9 +75,14 @@ func (g *Graph) deleteVertex(k string) {
 
 		// delete edges
 		for _, v := range g.vertices {
-			for i, u := range v.adjacent {
-				if u.key == k {
-					v.adjacent = remove(v.adjacent, i)
+			for i, out := range v.outList {
+				if out.key == k {
+					v.outList = remove(v.outList, i)
+				}
+			}
+			for i, in := range v.inList {
+				if in.key == k {
+					v.inList = remove(v.inList, i)
 				}
 			}
 		}
@@ -91,7 +107,11 @@ func (g *Graph) Print() {
 	for _, v := range g.vertices {
 		fmt.Printf("\nVertex: %s", v.key)
 		fmt.Printf(" outEdges: ")
-		for _, v := range v.adjacent {
+		for _, v := range v.outList {
+			fmt.Printf(" %s ", v.key)
+		}
+		fmt.Printf(" inEdges: ")
+		for _, v := range v.inList {
 			fmt.Printf(" %s ", v.key)
 		}
 	}
@@ -168,6 +188,13 @@ func (g *Graph) AddData(d *Dictionary) {
 	}
 }
 
+func (g *Graph) FirstPop() []string {
+
+	var freeWords []string
+
+	return freeWords
+}
+
 func main() {
 
 	tGraph := &Graph{}
@@ -191,14 +218,20 @@ func main() {
 
 	dict := &Dictionary{}
 
-	/* load all files
-	for ch := 'A'; ch <= 'Z'; ch++ {
-		dict.loadData(string(ch) + ".json")
-	}*/
+	/*
+		for ch := 'A'; ch <= 'Z'; ch++ {
+			dict.loadData(string(ch) + ".json")
+		}
+	*/
 
 	dict.loadData("A.json")
 
 	tGraph.AddData(dict)
+
+	//listFree := tGraph.FirstPop()
+
+	//fmt.Println(listFree)
+	//fmt.Println(len(listFree))
 
 	tGraph.Print()
 
