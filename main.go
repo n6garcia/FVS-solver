@@ -61,14 +61,40 @@ func (g *Graph) getVertex(k string) *Vertex {
 	}
 }
 
+// BUG: leaves blanks in outList/inList
 func (g *Graph) DeleteVertex(k string) {
 
-	_, ok := g.vertices[k]
+	val, ok := g.vertices[k]
 	if ok {
-		g.vertices[k] = nil
+		*val = Vertex{}
 		delete(g.vertices, k)
 	}
 
+}
+
+func (g *Graph) clearLists() {
+	for _, v := range g.vertices {
+		v.inList = rmList(v.inList)
+		v.outList = rmList(v.outList)
+	}
+}
+
+func rmList(li []*Vertex) []*Vertex {
+	for i, v := range li {
+		if v.key == "" {
+			li = remove(li, i)
+			li = rmList(li)
+			break
+		}
+	}
+
+	return li
+
+}
+
+func remove(s []*Vertex, i int) []*Vertex {
+	s[i] = s[len(s)-1]
+	return s[:len(s)-1]
 }
 
 func (g *Graph) Print() {
@@ -203,6 +229,8 @@ func (g *Graph) pop() int {
 		}
 	}
 
+	g.clearLists()
+
 	return pops
 }
 
@@ -241,8 +269,6 @@ func main() {
 	write(listFree)
 	fmt.Println("\nlistFree: ", len(listFree))
 
-	tGraph.PrintVert("Auricular")
-
 	pops := tGraph.pop()
 	fmt.Println("\npops: ", pops)
 
@@ -250,5 +276,9 @@ func main() {
 		pops = tGraph.pop()
 		fmt.Println("\npops: ", pops)
 	}
+
+	tGraph.PrintVert("abnormal")
+
+	tGraph.PrintSize()
 
 }
