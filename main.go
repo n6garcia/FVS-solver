@@ -9,8 +9,7 @@ import (
 
 type Graph struct {
 	vertices []*Vertex
-	vertsAdd []string
-	edgeAdd  []string
+	added    map[string]bool
 }
 
 type Vertex struct {
@@ -19,28 +18,27 @@ type Vertex struct {
 	inList  []*Vertex
 }
 
+func (g *Graph) init() {
+	g.added = make(map[string]bool)
+}
+
 func (g *Graph) AddVertex(k string) {
-	if !contains(g.vertices, k) {
+	if !g.contains(k) {
 		g.vertices = append(g.vertices, &Vertex{key: k})
+		g.added[k] = true
 	}
 }
 
-func contains(s []*Vertex, k string) bool {
-	for _, v := range s {
-		if k == v.key {
-			return true
-		}
-	}
-	return false
+func (g *Graph) contains(k string) bool {
+	_, ok := g.added[k]
+	return ok
 }
 
 func (g *Graph) AddEdge(from string, to string) {
 	fromVertex := g.getVertex(from)
 	toVertex := g.getVertex(to)
 
-	if fromVertex == nil || toVertex == nil {
-		fmt.Println("cannot add edge")
-	} else {
+	if !(fromVertex == nil || toVertex == nil) {
 		if !containsEdge(fromVertex, to) {
 			fromVertex.outList = append(fromVertex.outList, toVertex)
 			toVertex.inList = append(toVertex.inList, fromVertex)
@@ -170,6 +168,7 @@ func (d *Dictionary) loadData(fn string) {
 }
 
 func (g *Graph) AddData(d *Dictionary) {
+	fmt.Println("Adding Verts")
 	// add vertices
 	for _, v := range d.definitions {
 		g.AddVertex(v.name)
@@ -178,6 +177,7 @@ func (g *Graph) AddData(d *Dictionary) {
 		}
 	}
 
+	fmt.Println("Adding Edges")
 	// add edges
 	for _, v := range d.definitions {
 		for _, word := range v.words {
@@ -186,7 +186,7 @@ func (g *Graph) AddData(d *Dictionary) {
 	}
 }
 
-func (g *Graph) FirstPop() []string {
+func (g *Graph) firstPop() []string {
 
 	var freeWords []string
 
@@ -211,6 +211,7 @@ func (g *Graph) Pop() {
 func main() {
 
 	tGraph := &Graph{}
+	tGraph.init()
 
 	dict := &Dictionary{}
 
@@ -226,12 +227,9 @@ func main() {
 
 	tGraph.PrintSize()
 
-	/*
-		listFree := tGraph.FirstPop()
+	listFree := tGraph.firstPop()
 
-		fmt.Println(listFree)
-		fmt.Println(len(listFree))
-	*/
+	fmt.Println(len(listFree))
 
 	//tGraph.Print()
 
