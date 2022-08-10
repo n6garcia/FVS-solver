@@ -8,8 +8,7 @@ import (
 )
 
 type Graph struct {
-	vertices []*Vertex
-	added    map[string]*Vertex
+	vertices map[string]*Vertex
 }
 
 type Vertex struct {
@@ -21,13 +20,12 @@ type Vertex struct {
 func (g *Graph) AddVertex(k string) {
 	if !g.contains(k) {
 		vertex := &Vertex{key: k}
-		g.vertices = append(g.vertices, vertex)
-		g.added[k] = vertex
+		g.vertices[k] = vertex
 	}
 }
 
 func (g *Graph) contains(k string) bool {
-	_, ok := g.added[k]
+	_, ok := g.vertices[k]
 	return ok
 }
 
@@ -53,7 +51,7 @@ func containsEdge(from *Vertex, to string) bool {
 }
 
 func (g *Graph) getVertex(k string) *Vertex {
-	val, ok := g.added[k]
+	val, ok := g.vertices[k]
 	if ok {
 		return val
 	} else {
@@ -63,34 +61,11 @@ func (g *Graph) getVertex(k string) *Vertex {
 
 func (g *Graph) DeleteVertex(k string) {
 
-	_, ok := g.added[k]
+	_, ok := g.vertices[k]
 	if ok {
-		g.added[k] = nil
-		delete(g.added, k)
+		g.vertices[k] = nil
+		delete(g.vertices, k)
 	}
-
-	/*
-		// delete vertex
-		g.vertices = remove(g.vertices, delIndex)
-
-		// delete edges
-		for _, v := range g.vertices {
-			for i, out := range v.outList {
-				if out.key == k {
-					v.outList = remove(v.outList, i)
-				}
-			}
-			for i, in := range v.inList {
-				if in.key == k {
-					v.inList = remove(v.inList, i)
-				}
-			}
-		}
-	*/
-
-}
-
-func (g *Graph) removeNil() {
 
 }
 
@@ -177,7 +152,6 @@ func (d *Dictionary) loadData(fn string) {
 }
 
 func (g *Graph) AddData(d *Dictionary) {
-	fmt.Println("Adding Verts")
 	// add vertices
 	for _, v := range d.definitions {
 		g.AddVertex(v.name)
@@ -186,7 +160,6 @@ func (g *Graph) AddData(d *Dictionary) {
 		}
 	}
 
-	fmt.Println("Adding Edges")
 	// add edges
 	for _, v := range d.definitions {
 		for _, word := range v.words {
@@ -222,7 +195,7 @@ func (g *Graph) pop() int {
 
 func main() {
 
-	tGraph := &Graph{added: make(map[string]*Vertex)}
+	tGraph := &Graph{vertices: make(map[string]*Vertex)}
 
 	dict := &Dictionary{}
 
@@ -241,10 +214,5 @@ func main() {
 	listFree := tGraph.top()
 
 	fmt.Println("listFree: ", len(listFree))
-
-	fmt.Println("pops: ", tGraph.pop())
-	fmt.Println("pops: ", tGraph.pop())
-	fmt.Println("pops: ", tGraph.pop())
-	fmt.Println("pops: ", tGraph.pop())
 
 }
