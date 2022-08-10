@@ -61,27 +61,36 @@ func (g *Graph) getVertex(k string) *Vertex {
 	}
 }
 
-func (g *Graph) DeleteVertex(k string, delIndex int) {
+func (g *Graph) DeleteVertex(k string) {
 
-	// delete vertex
-	g.vertices = remove(g.vertices, delIndex)
-
-	// delete edges
-	for _, v := range g.vertices {
-		for i, out := range v.outList {
-			if out.key == k {
-				v.outList = remove(v.outList, i)
-			}
-		}
-		for i, in := range v.inList {
-			if in.key == k {
-				v.inList = remove(v.inList, i)
-			}
-		}
+	_, ok := g.added[k]
+	if ok {
+		g.added[k] = nil
+		delete(g.added, k)
 	}
 
-	// remove from added
-	delete(g.added, k)
+	/*
+		// delete vertex
+		g.vertices = remove(g.vertices, delIndex)
+
+		// delete edges
+		for _, v := range g.vertices {
+			for i, out := range v.outList {
+				if out.key == k {
+					v.outList = remove(v.outList, i)
+				}
+			}
+			for i, in := range v.inList {
+				if in.key == k {
+					v.inList = remove(v.inList, i)
+				}
+			}
+		}
+	*/
+
+}
+
+func (g *Graph) removeNil() {
 
 }
 
@@ -201,9 +210,9 @@ func (g *Graph) top() []string {
 
 func (g *Graph) pop() int {
 	pops := 0
-	for i, v := range g.vertices {
+	for _, v := range g.vertices {
 		if len(v.inList) == 0 {
-			g.DeleteVertex(v.key, i)
+			g.DeleteVertex(v.key)
 			pops++
 		}
 	}
@@ -214,7 +223,6 @@ func (g *Graph) pop() int {
 func main() {
 
 	tGraph := &Graph{added: make(map[string]*Vertex)}
-	//tGraph.init()
 
 	dict := &Dictionary{}
 
@@ -234,6 +242,9 @@ func main() {
 
 	fmt.Println("listFree: ", len(listFree))
 
-	fmt.Println(tGraph.pop())
+	fmt.Println("pops: ", tGraph.pop())
+	fmt.Println("pops: ", tGraph.pop())
+	fmt.Println("pops: ", tGraph.pop())
+	fmt.Println("pops: ", tGraph.pop())
 
 }
