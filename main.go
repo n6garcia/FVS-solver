@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"os"
 )
 
@@ -69,11 +71,6 @@ func (g *Graph) DeleteVertex(k string) {
 
 }
 
-func remove(s []*Vertex, i int) []*Vertex {
-	s[i] = s[len(s)-1]
-	return s[:len(s)-1]
-}
-
 func (g *Graph) Print() {
 	for _, v := range g.vertices {
 		fmt.Printf("\nVertex: %s", v.key)
@@ -84,6 +81,22 @@ func (g *Graph) Print() {
 		fmt.Printf(" inEdges: ")
 		for _, v := range v.inList {
 			fmt.Printf(" %s ", v.key)
+		}
+	}
+}
+
+func (g *Graph) PrintVert(k string) {
+	for _, v := range g.vertices {
+		if v.key == k {
+			fmt.Printf("\nVertex: %s", v.key)
+			fmt.Printf(" outEdges: ")
+			for _, v := range v.outList {
+				fmt.Printf(" %s ", v.key)
+			}
+			fmt.Printf(" inEdges: ")
+			for _, v := range v.inList {
+				fmt.Printf(" %s ", v.key)
+			}
 		}
 	}
 }
@@ -193,6 +206,18 @@ func (g *Graph) pop() int {
 	return pops
 }
 
+func write(li []string) {
+	json, err := json.MarshalIndent(li, "", " ")
+	if err != nil {
+		fmt.Printf("Error: %s", err.Error())
+	} else {
+		err = ioutil.WriteFile("words.json", json, 0644)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+}
+
 func main() {
 
 	tGraph := &Graph{vertices: make(map[string]*Vertex)}
@@ -213,6 +238,17 @@ func main() {
 
 	listFree := tGraph.top()
 
-	fmt.Println("listFree: ", len(listFree))
+	write(listFree)
+	fmt.Println("\nlistFree: ", len(listFree))
+
+	tGraph.PrintVert("Auricular")
+
+	pops := tGraph.pop()
+	fmt.Println("\npops: ", pops)
+
+	for pops != 0 {
+		pops = tGraph.pop()
+		fmt.Println("\npops: ", pops)
+	}
 
 }
