@@ -9,6 +9,8 @@ import (
 
 type Graph struct {
 	vertices []*Vertex
+	vertsAdd []string
+	edgeAdd  []string
 }
 
 type Vertex struct {
@@ -64,38 +66,25 @@ func (g *Graph) getVertex(k string) *Vertex {
 	return nil
 }
 
-func (g *Graph) deleteVertex(k string) {
-	delIndex := g.getVertexIndex(k)
+func (g *Graph) DeleteVertex(k string, delIndex int) {
 
-	if delIndex == -1 {
-		fmt.Println("vertex doesn't exist!")
-	} else {
-		// delete vertex
-		g.vertices = remove(g.vertices, delIndex)
+	// delete vertex
+	g.vertices = remove(g.vertices, delIndex)
 
-		// delete edges
-		for _, v := range g.vertices {
-			for i, out := range v.outList {
-				if out.key == k {
-					v.outList = remove(v.outList, i)
-				}
+	// delete edges
+	for _, v := range g.vertices {
+		for i, out := range v.outList {
+			if out.key == k {
+				v.outList = remove(v.outList, i)
 			}
-			for i, in := range v.inList {
-				if in.key == k {
-					v.inList = remove(v.inList, i)
-				}
+		}
+		for i, in := range v.inList {
+			if in.key == k {
+				v.inList = remove(v.inList, i)
 			}
 		}
 	}
-}
 
-func (g *Graph) getVertexIndex(k string) int {
-	for i, v := range g.vertices {
-		if v.key == k {
-			return i
-		}
-	}
-	return -1
 }
 
 func remove(s []*Vertex, i int) []*Vertex {
@@ -115,6 +104,10 @@ func (g *Graph) Print() {
 			fmt.Printf(" %s ", v.key)
 		}
 	}
+}
+
+func (g *Graph) PrintSize() {
+	fmt.Println("\ngSize: ", len(g.vertices))
 }
 
 type Dictionary struct {
@@ -137,6 +130,10 @@ func (d *Dictionary) Print() {
 	}
 }
 
+func (d *Dictionary) PrintSize() {
+	fmt.Println("\nsize : ", len(d.definitions))
+}
+
 func (d *Dictionary) loadData(fn string) {
 	file, err := os.Open("wrangle/cleaned/" + fn)
 	if err != nil {
@@ -157,6 +154,7 @@ func (d *Dictionary) loadData(fn string) {
 	bytes := []byte(txt)
 
 	fmt.Println("\nisValid: ", json.Valid(bytes))
+	fmt.Println("\nfile: ", fn)
 
 	var myData map[string][]interface{}
 
@@ -192,47 +190,49 @@ func (g *Graph) FirstPop() []string {
 
 	var freeWords []string
 
+	for _, v := range g.vertices {
+		if len(v.inList) == 0 {
+			freeWords = append(freeWords, v.key)
+			//g.DeleteVertex(v.key, i)
+		}
+	}
+
 	return freeWords
+}
+
+func (g *Graph) Pop() {
+	for i, v := range g.vertices {
+		if len(v.inList) == 0 {
+			g.DeleteVertex(v.key, i)
+		}
+	}
 }
 
 func main() {
 
 	tGraph := &Graph{}
 
-	/* Testing!
-	for i := 0; i < 5; i++ {
-		tGraph.AddVertex(strconv.Itoa(i))
-	}
-
-	tGraph.AddEdge(strconv.Itoa(1), strconv.Itoa(3))
-	tGraph.AddEdge(strconv.Itoa(1), strconv.Itoa(2))
-	tGraph.AddEdge(strconv.Itoa(6), strconv.Itoa(2))
-	tGraph.AddEdge(strconv.Itoa(4), strconv.Itoa(3))
-
-	tGraph.deleteVertex(strconv.Itoa(0))
-	tGraph.deleteVertex(strconv.Itoa(6))
-	tGraph.deleteVertex(strconv.Itoa(2))
-
-	tGraph.Print()
-	*/
-
 	dict := &Dictionary{}
 
-	/*
-		for ch := 'A'; ch <= 'Z'; ch++ {
-			dict.loadData(string(ch) + ".json")
-		}
-	*/
+	for ch := 'A'; ch <= 'Z'; ch++ {
+		dict.loadData(string(ch) + ".json")
+	}
 
-	dict.loadData("A.json")
+	//dict.loadData("A.json")
+
+	dict.PrintSize()
 
 	tGraph.AddData(dict)
 
-	//listFree := tGraph.FirstPop()
+	tGraph.PrintSize()
 
-	//fmt.Println(listFree)
-	//fmt.Println(len(listFree))
+	/*
+		listFree := tGraph.FirstPop()
 
-	tGraph.Print()
+		fmt.Println(listFree)
+		fmt.Println(len(listFree))
+	*/
+
+	//tGraph.Print()
 
 }
