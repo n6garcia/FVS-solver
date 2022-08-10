@@ -9,7 +9,7 @@ import (
 
 type Graph struct {
 	vertices []*Vertex
-	added    map[string]bool
+	added    map[string]*Vertex
 }
 
 type Vertex struct {
@@ -18,14 +18,11 @@ type Vertex struct {
 	inList  []*Vertex
 }
 
-func (g *Graph) init() {
-	g.added = make(map[string]bool)
-}
-
 func (g *Graph) AddVertex(k string) {
 	if !g.contains(k) {
-		g.vertices = append(g.vertices, &Vertex{key: k})
-		g.added[k] = true
+		vertex := &Vertex{key: k}
+		g.vertices = append(g.vertices, vertex)
+		g.added[k] = vertex
 	}
 }
 
@@ -56,12 +53,12 @@ func containsEdge(from *Vertex, to string) bool {
 }
 
 func (g *Graph) getVertex(k string) *Vertex {
-	for i, v := range g.vertices {
-		if v.key == k {
-			return g.vertices[i]
-		}
+	val, ok := g.added[k]
+	if ok {
+		return val
+	} else {
+		return nil
 	}
-	return nil
 }
 
 func (g *Graph) DeleteVertex(k string, delIndex int) {
@@ -82,6 +79,9 @@ func (g *Graph) DeleteVertex(k string, delIndex int) {
 			}
 		}
 	}
+
+	// remove from added
+	delete(g.added, k)
 
 }
 
@@ -186,32 +186,35 @@ func (g *Graph) AddData(d *Dictionary) {
 	}
 }
 
-func (g *Graph) firstPop() []string {
+func (g *Graph) top() []string {
 
 	var freeWords []string
 
 	for _, v := range g.vertices {
 		if len(v.inList) == 0 {
 			freeWords = append(freeWords, v.key)
-			//g.DeleteVertex(v.key, i)
 		}
 	}
 
 	return freeWords
 }
 
-func (g *Graph) Pop() {
+func (g *Graph) pop() int {
+	pops := 0
 	for i, v := range g.vertices {
 		if len(v.inList) == 0 {
 			g.DeleteVertex(v.key, i)
+			pops++
 		}
 	}
+
+	return pops
 }
 
 func main() {
 
-	tGraph := &Graph{}
-	tGraph.init()
+	tGraph := &Graph{added: make(map[string]*Vertex)}
+	//tGraph.init()
 
 	dict := &Dictionary{}
 
@@ -227,10 +230,10 @@ func main() {
 
 	tGraph.PrintSize()
 
-	listFree := tGraph.firstPop()
+	listFree := tGraph.top()
 
-	fmt.Println(len(listFree))
+	fmt.Println("listFree: ", len(listFree))
 
-	//tGraph.Print()
+	fmt.Println(tGraph.pop())
 
 }
