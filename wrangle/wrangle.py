@@ -1,20 +1,26 @@
 import csv
 import json 
+import nltk
+from nltk.stem import PorterStemmer
 
-fn = "Z"
+porter = PorterStemmer()
 
-file = open('dict/'+fn+'.csv')
+stem = True
 
-csvreader = csv.reader(file)
-
-# Read all rows
 rows = []
-for row in csvreader:
-        if row != []:
-            rows.append(row)
+strings = []
+
+for i in range(ord('A'), ord('Z')+1):
+    file = open('dict/'+chr(i)+'.csv')
+
+    csvreader = csv.reader(file)
+
+    # Read all rows
+    for row in csvreader:
+            if row != []:
+                rows.append(row)
 
 # Convert rows to strings
-strings = []
 for row in rows:
     strings.append(row[0])
 
@@ -65,9 +71,18 @@ for i in range(len(strings)):
         defn = defn.replace('(', '')
         defn = defn.replace(')', '')
 
-        dict[name] = defn.split()
+        # split definiton into list
+        defn = defn.split()
+
+        # do stemming on words
+        if (stem):
+            name = porter.stem(name)
+            for i in range(len(defn)):
+                defn[i] = porter.stem(defn[i])
+
+        dict[name] = defn
 
 
 # dump dictionary
-with open("cleaned/"+fn+".json", "w") as outfile:
+with open("cleaned/test.json", "w") as outfile:
     json.dump(dict, outfile, indent=2)

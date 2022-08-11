@@ -163,6 +163,8 @@ func (d *Dictionary) loadData(fn string) {
 	}
 	defer file.Close()
 
+	fmt.Println("\nfile: ", fn)
+
 	scanner := bufio.NewScanner(file)
 
 	var txt string
@@ -175,7 +177,6 @@ func (d *Dictionary) loadData(fn string) {
 	bytes := []byte(txt)
 
 	fmt.Println("\nisValid: ", json.Valid(bytes))
-	fmt.Println("\nfile: ", fn)
 
 	var myData map[string][]interface{}
 
@@ -252,11 +253,15 @@ func main() {
 
 	dict := &Dictionary{}
 
-	for ch := 'A'; ch <= 'Z'; ch++ {
-		dict.loadData(string(ch) + ".json")
-	}
+	/*
+		for ch := 'A'; ch <= 'Z'; ch++ {
+			dict.loadData(string(ch) + ".json")
+		}
+	*/
 
 	//dict.loadData("A.json")
+
+	dict.loadData("dict.json")
 
 	dict.PrintSize()
 
@@ -271,6 +276,8 @@ func main() {
 
 	pops := tGraph.pop()
 	fmt.Println("\npops: ", pops)
+
+	tGraph.PrintVert("abnormal")
 
 	for pops != 0 {
 		pops = tGraph.pop()
