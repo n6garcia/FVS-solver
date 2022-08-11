@@ -236,6 +236,14 @@ func (g *Graph) pop() int {
 	return pops
 }
 
+func (g *Graph) firstPop() {
+	pops := g.pop()
+
+	for pops != 0 {
+		pops = g.pop()
+	}
+}
+
 func write(li []string, fn string) {
 	json, err := json.MarshalIndent(li, "", " ")
 	if err != nil {
@@ -246,6 +254,18 @@ func write(li []string, fn string) {
 			log.Fatal(err)
 		}
 	}
+}
+
+func (g *Graph) vertCover() []string {
+	g.firstPop()
+
+	var delNodes []string
+
+	for g.Size() != 0 {
+		delNodes = append(delNodes, g.delHighest())
+	}
+
+	return delNodes
 }
 
 func (g *Graph) delHighest() string {
@@ -299,21 +319,10 @@ func main() {
 	listFree := tGraph.top()
 
 	write(listFree, "freeWords.json")
+
 	fmt.Println("\nlistFree: ", len(listFree))
 
-	pops := tGraph.pop()
-
-	for pops != 0 {
-		pops = tGraph.pop()
-	}
-
-	tGraph.PrintSize()
-
-	var delNodes []string
-
-	for tGraph.Size() != 0 {
-		delNodes = append(delNodes, tGraph.delHighest())
-	}
+	delNodes := tGraph.vertCover()
 
 	write(delNodes, "delNodes.json")
 
