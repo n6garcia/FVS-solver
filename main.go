@@ -61,7 +61,6 @@ func (g *Graph) getVertex(k string) *Vertex {
 	}
 }
 
-// BUG: leaves blanks in outList/inList
 func (g *Graph) DeleteVertex(k string) {
 
 	val, ok := g.vertices[k]
@@ -196,7 +195,6 @@ func (d *Dictionary) loadData(fn string) {
 }
 
 func (g *Graph) AddData(d *Dictionary) {
-	// add vertices
 	for _, v := range d.definitions {
 		g.AddVertex(v.name)
 		for _, word := range v.words {
@@ -204,7 +202,6 @@ func (g *Graph) AddData(d *Dictionary) {
 		}
 	}
 
-	// add edges
 	for _, v := range d.definitions {
 		for _, word := range v.words {
 			g.AddEdge(v.name, word)
@@ -291,9 +288,7 @@ func main() {
 		dict.loadData(string(ch) + ".json")
 	}
 
-	//dict.loadData("A.json")
-
-	//dict.loadData("stem.json")
+	//dict.loadData("dict.json")
 
 	dict.PrintSize()
 

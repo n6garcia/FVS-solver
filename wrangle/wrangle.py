@@ -62,31 +62,33 @@ print("data cleaned")
 # split word and defintion into dictionary
 dict = {}
 for i in range(len(strings)):
-    for j in range(len(strings[i])):
-        name, defn = strings[i].split(' ', 1)
+    # split name and definiton
+    name, defn = strings[i].split(' ', 1)
 
-        for k in range(len(defn)):
-            if defn[k] == ')':
-                defn = defn[k+1:]
-                break
-        
-        #finish cleaning data
-        defn = defn.replace('(', '')
-        defn = defn.replace(')', '')
+    # remove word type from definiton
+    for k in range(len(defn)):
+        if defn[k] == ')':
+            defn = defn[k+1:]
+            break
+    
+    # finish cleaning data
+    defn = defn.replace('(', '')
+    defn = defn.replace(')', '')
 
-        # split definiton into list
-        defn = defn.split()
+    # split definiton into list
+    defn = defn.split()
 
-        # do stemming on words
-        if (stem):
-            name = porter.stem(name)
-            for i in range(len(defn)):
-                defn[i] = porter.stem(defn[i])
+    # do stemming on words
+    if (stem):
+        name = porter.stem(name)
+        for i in range(len(defn)):
+            defn[i] = porter.stem(defn[i])
 
-        dict[name] = defn
+    # save word/def to dictionary 
+    dict[name] = defn
 
 
 # dump dictionary
-fn = "test.json"
+fn = "stem.json"
 with open("cleaned/"+fn, "w") as outfile:
     json.dump(dict, outfile, indent=2)
