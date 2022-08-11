@@ -1,6 +1,5 @@
 import csv
 import json 
-import nltk
 from nltk.stem import PorterStemmer
 
 porter = PorterStemmer()
@@ -23,6 +22,8 @@ for i in range(ord('A'), ord('Z')+1):
 # Convert rows to strings
 for row in rows:
     strings.append(row[0])
+
+print("data read")
 
 # Clean Data
 for i in range(len(strings)):
@@ -56,6 +57,8 @@ for i in range(len(strings)):
     strings[i] = strings[i].replace('>', '')
     strings[i] = strings[i].replace('£', '')
 
+print("data cleaned")
+
 # split word and defintion into dictionary
 dict = {}
 for i in range(len(strings)):
@@ -84,5 +87,6 @@ for i in range(len(strings)):
 
 
 # dump dictionary
-with open("cleaned/test.json", "w") as outfile:
+fn = "test.json"
+with open("cleaned/"+fn, "w") as outfile:
     json.dump(dict, outfile, indent=2)

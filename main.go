@@ -131,6 +131,10 @@ func (g *Graph) PrintSize() {
 	fmt.Println("\ngSize: ", len(g.vertices))
 }
 
+func (g *Graph) Size() int {
+	return len(g.vertices)
+}
+
 type Dictionary struct {
 	definitions []*Definiton
 }
@@ -235,16 +239,46 @@ func (g *Graph) pop() int {
 	return pops
 }
 
-func write(li []string) {
+func write(li []string, fn string) {
 	json, err := json.MarshalIndent(li, "", " ")
 	if err != nil {
 		fmt.Printf("Error: %s", err.Error())
 	} else {
-		err = ioutil.WriteFile("words.json", json, 0644)
+		err = ioutil.WriteFile(fn, json, 0644)
 		if err != nil {
 			log.Fatal(err)
 		}
 	}
+}
+
+func (g *Graph) delHighest() string {
+	vert := g.findHighest()
+	key := vert.key
+
+	g.DeleteVertex(vert.key)
+	g.clearLists()
+
+	pops := g.pop()
+
+	for pops != 0 {
+		pops = g.pop()
+	}
+
+	return key
+}
+
+func (g *Graph) findHighest() *Vertex {
+	var vert *Vertex
+	top := 0
+
+	for _, val := range g.vertices {
+		if len(val.outList) > top {
+			top = len(val.outList)
+			vert = val
+		}
+	}
+
+	return vert
 }
 
 func main() {
@@ -253,15 +287,13 @@ func main() {
 
 	dict := &Dictionary{}
 
-	/*
-		for ch := 'A'; ch <= 'Z'; ch++ {
-			dict.loadData(string(ch) + ".json")
-		}
-	*/
+	for ch := 'A'; ch <= 'Z'; ch++ {
+		dict.loadData(string(ch) + ".json")
+	}
 
 	//dict.loadData("A.json")
 
-	dict.loadData("dict.json")
+	//dict.loadData("stem.json")
 
 	dict.PrintSize()
 
@@ -271,21 +303,25 @@ func main() {
 
 	listFree := tGraph.top()
 
-	write(listFree)
+	write(listFree, "freeWords.json")
 	fmt.Println("\nlistFree: ", len(listFree))
 
 	pops := tGraph.pop()
-	fmt.Println("\npops: ", pops)
-
-	tGraph.PrintVert("abnormal")
 
 	for pops != 0 {
 		pops = tGraph.pop()
-		fmt.Println("\npops: ", pops)
 	}
 
-	tGraph.PrintVert("abnormal")
-
 	tGraph.PrintSize()
+
+	var delNodes []string
+
+	for tGraph.Size() != 0 {
+		delNodes = append(delNodes, tGraph.delHighest())
+	}
+
+	write(delNodes, "delNodes.json")
+
+	fmt.Println("nodes removed: ", len(delNodes))
 
 }
