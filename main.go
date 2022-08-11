@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 )
@@ -249,7 +248,7 @@ func write(li []string, fn string) {
 	if err != nil {
 		fmt.Printf("Error: %s", err.Error())
 	} else {
-		err = ioutil.WriteFile(fn, json, 0644)
+		err = os.WriteFile(fn, json, 0644)
 		if err != nil {
 			log.Fatal(err)
 		}
