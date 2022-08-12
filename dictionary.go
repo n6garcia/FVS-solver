@@ -93,8 +93,6 @@ func (d *Dictionary) expandDef(delNodes []string, k string) []string {
 		return defn
 	}
 
-	fmt.Println(defn)
-
 	for i, val := range defn {
 		defn = slices.Insert(defn, i, d.recurDef(wordMap, val)...)
 	}
@@ -122,4 +120,13 @@ func (d *Dictionary) findDef(k string) []string {
 		}
 	}
 	return []string{}
+}
+
+func (d *Dictionary) getDef(k string) []string {
+	for _, val := range d.definitions {
+		if val.name == k {
+			return val.words
+		}
+	}
+	return nil
 }

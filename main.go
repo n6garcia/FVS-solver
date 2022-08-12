@@ -30,11 +30,18 @@ func getHandler(w http.ResponseWriter, r *http.Request) {
 	word := r.FormValue("word")
 
 	defn := dict.expandDef(delNodes, word)
+	oDefn := dict.getDef(word)
+
+	fmt.Println(oDefn)
 
 	var str string
 
-	for _, val := range defn {
-		str = str + val
+	for i, val := range defn {
+		if i == 0 {
+			str = str + val
+		} else {
+			str = str + " " + val
+		}
 	}
 
 	w.Write([]byte(str))
