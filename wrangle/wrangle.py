@@ -4,13 +4,18 @@ from nltk.stem import PorterStemmer
 
 porter = PorterStemmer()
 
-stem = True
-
-rows = []
-strings = []
+stem = False
 
 for i in range(ord('A'), ord('Z')+1):
-    file = open('dict/'+chr(i)+'.csv')
+
+    rows = []
+    strings = []
+    
+    char = chr(i)
+
+    print(char)
+
+    file = open('dict/'+char+'.csv')
 
     csvreader = csv.reader(file)
 
@@ -19,76 +24,77 @@ for i in range(ord('A'), ord('Z')+1):
             if row != []:
                 rows.append(row)
 
-# Convert rows to strings
-for row in rows:
-    strings.append(row[0])
+    # Convert rows to strings
+    for row in rows:
+        strings.append(row[0])
 
-print("data read")
+    print("data read")
 
-# Clean Data
-for i in range(len(strings)):
-    strings[i] = strings[i].replace(';', '')
-    strings[i] = strings[i].replace(',', '')
-    strings[i] = strings[i].replace('.', '')
-    strings[i] = strings[i].replace('-', '')
-    strings[i] = strings[i].replace('"', '')
-    strings[i] = strings[i].replace('[', '')
-    strings[i] = strings[i].replace(']', '')
-    strings[i] = strings[i].replace(':', '')
-    strings[i] = strings[i].replace('/', '')
-    strings[i] = strings[i].replace('!', '')
-    strings[i] = strings[i].replace('&', '')
-    strings[i] = strings[i].replace('?', '')
-    strings[i] = strings[i].replace('*', '')
-    strings[i] = strings[i].replace('~', '')
-    strings[i] = strings[i].replace('=', '')
-    strings[i] = strings[i].replace('`', '')
-    strings[i] = strings[i].replace('+', '')
-    strings[i] = strings[i].replace('#', '')
-    strings[i] = strings[i].replace('¡', '')
-    strings[i] = strings[i].replace('–', '')
-    strings[i] = strings[i].replace('^', '')
-    strings[i] = strings[i].replace('$', '')
-    strings[i] = strings[i].replace('{', '')
-    strings[i] = strings[i].replace('}', '')
-    strings[i] = strings[i].replace('\\', '')
-    strings[i] = strings[i].replace('|', '')
-    strings[i] = strings[i].replace('<', '')
-    strings[i] = strings[i].replace('>', '')
-    strings[i] = strings[i].replace('£', '')
+    # Clean Data
+    for i in range(len(strings)):
+        strings[i] = strings[i].replace(';', '')
+        strings[i] = strings[i].replace(',', '')
+        strings[i] = strings[i].replace('.', '')
+        strings[i] = strings[i].replace('-', '')
+        strings[i] = strings[i].replace('"', '')
+        strings[i] = strings[i].replace('[', '')
+        strings[i] = strings[i].replace(']', '')
+        strings[i] = strings[i].replace(':', '')
+        strings[i] = strings[i].replace('/', '')
+        strings[i] = strings[i].replace('!', '')
+        strings[i] = strings[i].replace('&', '')
+        strings[i] = strings[i].replace('?', '')
+        strings[i] = strings[i].replace('*', '')
+        strings[i] = strings[i].replace('~', '')
+        strings[i] = strings[i].replace('=', '')
+        strings[i] = strings[i].replace('`', '')
+        strings[i] = strings[i].replace('+', '')
+        strings[i] = strings[i].replace('#', '')
+        strings[i] = strings[i].replace('¡', '')
+        strings[i] = strings[i].replace('–', '')
+        strings[i] = strings[i].replace('^', '')
+        strings[i] = strings[i].replace('$', '')
+        strings[i] = strings[i].replace('{', '')
+        strings[i] = strings[i].replace('}', '')
+        strings[i] = strings[i].replace('\\', '')
+        strings[i] = strings[i].replace('|', '')
+        strings[i] = strings[i].replace('<', '')
+        strings[i] = strings[i].replace('>', '')
+        strings[i] = strings[i].replace('£', '')
 
-print("data cleaned")
+        strings[i] = strings[i].lower()
 
-# split word and defintion into dictionary
-dict = {}
-for i in range(len(strings)):
-    # split name and definiton
-    name, defn = strings[i].split(' ', 1)
+    print("data cleaned")
 
-    # remove word type from definiton
-    for k in range(len(defn)):
-        if defn[k] == ')':
-            defn = defn[k+1:]
-            break
-    
-    # finish cleaning data
-    defn = defn.replace('(', '')
-    defn = defn.replace(')', '')
+    # split word and defintion into dictionary
+    dict = {}
+    for i in range(len(strings)):
+        # split name and definiton
+        name, defn = strings[i].split(' ', 1)
 
-    # split definiton into list
-    defn = defn.split()
+        # remove word type from definiton
+        for k in range(len(defn)):
+            if defn[k] == ')':
+                defn = defn[k+1:]
+                break
+        
+        # finish cleaning data
+        defn = defn.replace('(', '')
+        defn = defn.replace(')', '')
 
-    # do stemming on words
-    if (stem):
-        name = porter.stem(name)
-        for i in range(len(defn)):
-            defn[i] = porter.stem(defn[i])
+        # split definiton into list
+        defn = defn.split()
 
-    # save word/def to dictionary 
-    dict[name] = defn
+        # do stemming on words
+        if (stem):
+            name = porter.stem(name)
+            for i in range(len(defn)):
+                defn[i] = porter.stem(defn[i])
+
+        # save word/def to dictionary 
+        dict[name] = defn
 
 
-# dump dictionary
-fn = "stem.json"
-with open("cleaned/"+fn, "w") as outfile:
-    json.dump(dict, outfile, indent=2)
+    # dump dictionary
+    with open("cleaned/"+char+".json", "w") as outfile:
+        json.dump(dict, outfile, indent=2)

@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+
+	"golang.org/x/exp/slices"
 )
 
 type Graph struct {
@@ -297,6 +299,62 @@ func (g *Graph) findHighest() *Vertex {
 	return vert
 }
 
+func (d *Dictionary) expandDef(delNodes []string, k string) []string {
+	// create map
+	wordMap := make(map[string]bool)
+
+	// init map with false vals
+	for _, val := range d.definitions {
+		wordMap[val.name] = false
+	}
+
+	// init map with vertex Cover (true vals)
+	// WARNING: possibly adds values not in dict.definitions
+	for _, val := range delNodes {
+		wordMap[val] = true
+	}
+
+	var defn []string
+
+	// find definition of testName
+	for _, val := range d.definitions {
+		if val.name == k {
+			defn = val.words
+			break
+		}
+	}
+
+	fmt.Println(defn)
+
+	for i, val := range defn {
+		defn = slices.Insert(defn, i, d.recurDef(wordMap, val)...)
+	}
+
+	return defn
+}
+
+func (d *Dictionary) recurDef(wordMap map[string]bool, k string) []string {
+	val, ok := wordMap[k]
+	if !ok || val {
+		return []string{}
+	} else {
+		defn := d.findDef(k)
+		for i, val := range defn {
+			defn = slices.Insert(defn, i, d.recurDef(wordMap, val)...)
+		}
+		return defn
+	}
+}
+
+func (d *Dictionary) findDef(k string) []string {
+	for _, val := range d.definitions {
+		if val.name == k {
+			return val.words
+		}
+	}
+	return []string{}
+}
+
 func main() {
 
 	tGraph := &Graph{vertices: make(map[string]*Vertex)}
@@ -306,8 +364,6 @@ func main() {
 	for ch := 'A'; ch <= 'Z'; ch++ {
 		dict.loadData(string(ch) + ".json")
 	}
-
-	//dict.loadData("dict.json")
 
 	dict.PrintSize()
 
@@ -327,32 +383,6 @@ func main() {
 
 	fmt.Println("nodes removed: ", len(delNodes))
 
-	// create map
-	wordMap := make(map[string]bool)
-
-	// init map with false vals
-	for _, val := range dict.definitions {
-		wordMap[val.name] = false
-	}
-
-	// init map with vertex Cover (true vals)
-	// WARNING: possibly adds values not in dict.definitions
-	for _, val := range delNodes {
-		wordMap[val] = true
-	}
-
-	testName := "Upstart"
-
-	var defn []string
-
-	// find definition of testName
-	for _, val := range dict.definitions {
-		if val.name == testName {
-			defn = val.words
-			break
-		}
-	}
-
-	fmt.Println(defn)
+	fmt.Println(dict.expandDef(delNodes, "upstart"))
 
 }
