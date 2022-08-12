@@ -134,16 +134,16 @@ func (g *Graph) Size() int {
 }
 
 type Dictionary struct {
-	definitions []*Definiton
+	definitions []*Definition
 }
 
-type Definiton struct {
+type Definition struct {
 	name  string
 	words []string
 }
 
 func (d *Dictionary) addDef(n string, w []string) {
-	d.definitions = append(d.definitions, &Definiton{name: n, words: w})
+	d.definitions = append(d.definitions, &Definition{name: n, words: w})
 }
 
 func (d *Dictionary) Print() {
@@ -326,5 +326,33 @@ func main() {
 	write(delNodes, "delNodes.json")
 
 	fmt.Println("nodes removed: ", len(delNodes))
+
+	// create map
+	wordMap := make(map[string]bool)
+
+	// init map with false vals
+	for _, val := range dict.definitions {
+		wordMap[val.name] = false
+	}
+
+	// init map with vertex Cover (true vals)
+	// WARNING: possibly adds values not in dict.definitions
+	for _, val := range delNodes {
+		wordMap[val] = true
+	}
+
+	testName := "Upstart"
+
+	var defn []string
+
+	// find definition of testName
+	for _, val := range dict.definitions {
+		if val.name == testName {
+			defn = val.words
+			break
+		}
+	}
+
+	fmt.Println(defn)
 
 }
