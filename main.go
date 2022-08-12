@@ -19,7 +19,7 @@ func write(li []string, fn string) {
 	if err != nil {
 		fmt.Printf("Error: %s", err.Error())
 	} else {
-		err = os.WriteFile(fn, json, 0644)
+		err = os.WriteFile("data/"+fn, json, 0644)
 		if err != nil {
 			log.Fatal(err)
 		}
