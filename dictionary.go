@@ -71,6 +71,11 @@ func (d *Dictionary) loadData(fn string) {
 
 func (d *Dictionary) expandDef(delNodes []string, k string) []string {
 	wordMap := make(map[string]bool)
+	var defn []string
+
+	if k == "" {
+		return defn
+	}
 
 	for _, val := range d.definitions {
 		wordMap[val.name] = false
@@ -80,17 +85,11 @@ func (d *Dictionary) expandDef(delNodes []string, k string) []string {
 		wordMap[val] = true
 	}
 
-	var defn []string
-
 	for _, val := range d.definitions {
 		if val.name == k {
 			defn = val.words
 			break
 		}
-	}
-
-	if defn == nil {
-		return defn
 	}
 
 	for i, val := range defn {
@@ -123,6 +122,9 @@ func (d *Dictionary) findDef(k string) []string {
 }
 
 func (d *Dictionary) getDef(k string) []string {
+	if k == "" {
+		return nil
+	}
 	for _, val := range d.definitions {
 		if val.name == k {
 			return val.words

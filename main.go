@@ -54,7 +54,7 @@ func handleServer() {
 
 	http.Handle("/", r)
 
-	log.Fatal(http.ListenAndServe(":3002", nil))
+	log.Fatal(http.ListenAndServe(":3001", nil))
 }
 
 func main() {
