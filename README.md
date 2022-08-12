@@ -12,8 +12,11 @@ Using the algorithm described above I found a set of 16,214 words that can be us
 ### Interesting Words
 They, An, In, Let, To, It, I, Cat, God, Bible, Angel...
 
-## Plans
-I plan on hosting an application of the minimal set of words on my website where definitions of any word can be searched up and defined using only words in the minimal set.
+## Website
+An application of the minimal set of words on my website where definitions of any word can be searched up and defined using only words in the minimal set.
+
+### Link
+https://noeldev.site/search/search.html
 
 ## Dataset
 https://www.bragitoff.com/2016/03/english-dictionary-in-csv-format/

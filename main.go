@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -26,13 +27,54 @@ func write(li []string, fn string) {
 	}
 }
 
-func getHandler(w http.ResponseWriter, r *http.Request) {
+func getNodes() []string {
+	file, err := os.Open("data/delNodes.json")
+	if err != nil {
+		fmt.Println("error loading json")
+		return []string{}
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+
+	var txt string
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		txt = txt + line
+	}
+
+	bytes := []byte(txt)
+
+	var myData []string
+
+	json.Unmarshal(bytes, &myData)
+
+	return myData
+}
+
+func origHandler(w http.ResponseWriter, r *http.Request) {
+	word := r.FormValue("word")
+
+	defn := dict.getDef(word)
+
+	var str string
+
+	for i, val := range defn {
+		if i == 0 {
+			str = str + val
+		} else {
+			str = str + " " + val
+		}
+	}
+
+	w.Write([]byte(str))
+}
+
+func newHandler(w http.ResponseWriter, r *http.Request) {
 	word := r.FormValue("word")
 
 	defn := dict.expandDef(delNodes, word)
-	oDefn := dict.getDef(word)
-
-	fmt.Println(oDefn)
 
 	var str string
 
@@ -50,7 +92,8 @@ func getHandler(w http.ResponseWriter, r *http.Request) {
 func handleServer() {
 	r := mux.NewRouter()
 
-	r.HandleFunc("/", getHandler).Methods("GET")
+	r.HandleFunc("/orig", origHandler).Methods("GET")
+	r.HandleFunc("/new", newHandler).Methods("GET")
 
 	http.Handle("/", r)
 
@@ -69,21 +112,25 @@ func main() {
 
 	dict.PrintSize()
 
-	tGraph.AddData(dict)
+	/*
+		tGraph.AddData(dict)
 
-	tGraph.PrintSize()
+		tGraph.PrintSize()
 
-	listFree := tGraph.top()
+		listFree := tGraph.top()
 
-	write(listFree, "freeWords.json")
+		write(listFree, "freeWords.json")
 
-	fmt.Println("\nlistFree: ", len(listFree))
+		fmt.Println("\nlistFree: ", len(listFree))
 
-	delNodes = tGraph.vertCover()
+		delNodes = tGraph.vertCover()
 
-	write(delNodes, "delNodes.json")
+		write(delNodes, "delNodes.json")
 
-	fmt.Println("nodes removed: ", len(delNodes))
+		fmt.Println("nodes removed: ", len(delNodes))
+	*/
+
+	delNodes = getNodes()
 
 	handleServer()
 }
