@@ -70,28 +70,27 @@ func (d *Dictionary) loadData(fn string) {
 }
 
 func (d *Dictionary) expandDef(delNodes []string, k string) []string {
-	// create map
 	wordMap := make(map[string]bool)
 
-	// init map with false vals
 	for _, val := range d.definitions {
 		wordMap[val.name] = false
 	}
 
-	// init map with vertex Cover (true vals)
-	// WARNING: possibly adds values not in dict.definitions
 	for _, val := range delNodes {
 		wordMap[val] = true
 	}
 
 	var defn []string
 
-	// find definition of testName
 	for _, val := range d.definitions {
 		if val.name == k {
 			defn = val.words
 			break
 		}
+	}
+
+	if defn == nil {
+		return defn
 	}
 
 	fmt.Println(defn)

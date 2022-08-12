@@ -1,10 +1,7 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"log"
-	"os"
 )
 
 type Graph struct {
@@ -179,18 +176,6 @@ func (g *Graph) firstPop() {
 
 	for pops != 0 {
 		pops = g.pop()
-	}
-}
-
-func write(li []string, fn string) {
-	json, err := json.MarshalIndent(li, "", " ")
-	if err != nil {
-		fmt.Printf("Error: %s", err.Error())
-	} else {
-		err = os.WriteFile(fn, json, 0644)
-		if err != nil {
-			log.Fatal(err)
-		}
 	}
 }
 
