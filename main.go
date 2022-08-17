@@ -28,7 +28,7 @@ func write(li []string, fn string) {
 }
 
 func getNodes() []string {
-	file, err := os.Open("data/delNodes.json")
+	file, err := os.Open("data/vertexCover.json")
 	if err != nil {
 		fmt.Println("error loading json")
 		return []string{}
@@ -112,25 +112,23 @@ func main() {
 
 	dict.PrintSize()
 
-	/*
-		tGraph.AddData(dict)
+	tGraph.AddData(dict)
 
-		tGraph.PrintSize()
+	tGraph.PrintSize()
 
-		listFree := tGraph.top()
+	listFree := tGraph.top()
 
-		write(listFree, "freeWords.json")
+	write(listFree, "freeWords.json")
 
-		fmt.Println("\nlistFree: ", len(listFree))
+	fmt.Println("\nlistFree: ", len(listFree))
 
-		delNodes = tGraph.vertCover()
+	delNodes = tGraph.vertCover()
 
-		write(delNodes, "delNodes.json")
+	write(delNodes, "delNodes.json")
 
-		fmt.Println("nodes removed: ", len(delNodes))
-	*/
+	fmt.Println("nodes removed: ", len(delNodes))
 
-	delNodes = getNodes()
+	//delNodes = getNodes()
 
-	handleServer()
+	//handleServer()
 }

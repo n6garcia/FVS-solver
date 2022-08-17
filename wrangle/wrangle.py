@@ -1,10 +1,10 @@
 import csv
-import json 
-from nltk.stem import PorterStemmer
+import json
+from nltk.stem import WordNetLemmatizer
 
-porter = PorterStemmer()
+lemma = WordNetLemmatizer()
 
-stem = False
+lem = False
 
 for i in range(ord('A'), ord('Z')+1):
 
@@ -86,10 +86,10 @@ for i in range(ord('A'), ord('Z')+1):
         defn = defn.split()
 
         # do stemming on words
-        if (stem):
-            name = porter.stem(name)
+        if (lem):
+            #name = lemma.lemmatize(name)
             for i in range(len(defn)):
-                defn[i] = porter.stem(defn[i])
+                defn[i] = lemma.lemmatize(defn[i])
 
         # save word/def to dictionary 
         dict[name] = defn
