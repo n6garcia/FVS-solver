@@ -66,6 +66,7 @@ func (g *Graph) DeleteVertex(k string) {
 
 }
 
+// Must call after DeleteVertex calls
 func (g *Graph) clearLists() {
 	for _, v := range g.vertices {
 		v.inList = rmList(v.inList)
