@@ -26,6 +26,7 @@ func (g *Graph) contains(k string) bool {
 	return ok
 }
 
+// from ---> to
 func (g *Graph) AddEdge(from string, to string) {
 	fromVertex := g.getVertex(from)
 	toVertex := g.getVertex(to)
@@ -140,7 +141,8 @@ func (g *Graph) AddData(d *Dictionary) {
 
 	for _, v := range d.definitions {
 		for _, word := range v.words {
-			g.AddEdge(v.name, word)
+			// word defines name
+			g.AddEdge(word, v.name)
 		}
 	}
 }

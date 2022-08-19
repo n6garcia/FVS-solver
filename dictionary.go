@@ -18,6 +18,7 @@ type Definition struct {
 	words []string
 }
 
+// unsafe add, we assume no duplicate entries in dictionary
 func (d *Dictionary) addDef(n string, w []string) {
 	d.definitions = append(d.definitions, &Definition{name: n, words: w})
 }
