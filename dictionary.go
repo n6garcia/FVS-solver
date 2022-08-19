@@ -122,6 +122,7 @@ func (d *Dictionary) findDef(k string) []string {
 	return []string{}
 }
 
+// for use outside recurDef
 func (d *Dictionary) getDef(k string) []string {
 	if k == "" {
 		return nil
