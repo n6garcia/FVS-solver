@@ -1,6 +1,6 @@
 # Dictionary-Problem
 
-### What is the smallest set of words that can be used to define every word in the dictionary?
+### `What is the smallest set of words that can be used to define every word in the dictionary?`
 
 ## The Solution
 My solution to the problem is a little complex but it involves creating a directed graph from the dictionary (including the words in the definition) with words as keys. By searching for a modified vertex cover on our modified digraph using the algorithmn we have we get an approximation for the smallest word set. From all the research I've done on the problem it seems to that finding the perfect solution is an NP hard problem so an approximation algorithmn seems to be the best I can do. 
