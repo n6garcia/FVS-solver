@@ -10,7 +10,7 @@ My solution to the problem is a little complex but it involves creating a direct
 ### a ---> b
 ### a defines b
 
-We add edges to the graph we construct where, a points to b if that a is in b's definition. I have added some special functionality to the digraph to make it possible to solve the problem of the smallest word set. Imagine the case where after a cover a word has no in-degree, what this means is that either it has no definition or we've "defined" every word in that words definition by deleting them from the graph. In either case, this word is essentially defined. What we hope to find with our modified vertex cover is a cover in our graph where after deleting the vertices from the graph in the cover the rest of the graph is automatically deleted because they end up all end up being "defined". To simulate this action of a word becoming defined, we "pop" all the vertices from the graph which have no in-degree until none can be found. This should happen every time a vertex is deleted from the graph.
+We add edges to the graph we construct where, a points to b if that a is in b's definition. I have added some special functionality to the digraph to make it possible to solve the problem of the smallest word set. Imagine the case where after a cover a word has no in-degree, what this means is that either it has no definition or we've "defined" every word in that words definition by deleting them from the graph. In our modified digraph we delete or "pop" any vertices that have no in-degree because that means its expanded definition will only use words in the cover. What we hope to find with our modified vertex cover is a cover in our graph where the rest of the graph is automatically deleted because they all end up being "defined" from the cover. To simulate this action of a word becoming defined, we "pop" all the vertices from the graph which have no in-degree until none can be found. This should happen every time a vertex is deleted from the graph.
 
 ## The Algorithmn
 
@@ -25,7 +25,6 @@ They, An, In, Let, To, It, I, Cat, God, Bible, Angel...
 ## Website
 An application of the minimal set of words on my website where definitions of any word can be searched up and defined using only words in the minimal set.
 
-### Link
 https://noeldev.site/search/search.html
 
 ## Dataset
