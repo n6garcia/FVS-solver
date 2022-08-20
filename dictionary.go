@@ -5,8 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-
-	"golang.org/x/exp/slices"
 )
 
 type Dictionary struct {
@@ -93,11 +91,20 @@ func (d *Dictionary) expandDef(delNodes []string, k string) []string {
 		}
 	}
 
-	for i, val := range defn {
-		defn = slices.Insert(defn, i, d.recurDef(wordMap, val)...)
+	var newDefn []string = []string{}
+	fmt.Println(defn)
+	for _, val := range defn {
+		fmt.Println(val)
+		expand := d.recurDef(wordMap, val)
+		fmt.Println(expand)
+		if len(expand) != 0 {
+			newDefn = append(newDefn, expand...)
+		} else {
+			newDefn = append(newDefn, val)
+		}
 	}
 
-	return defn
+	return newDefn
 }
 
 func (d *Dictionary) recurDef(wordMap map[string]bool, k string) []string {
@@ -106,10 +113,16 @@ func (d *Dictionary) recurDef(wordMap map[string]bool, k string) []string {
 		return []string{}
 	} else {
 		defn := d.findDef(k)
-		for i, val := range defn {
-			defn = slices.Insert(defn, i, d.recurDef(wordMap, val)...)
+		var newDefn []string = []string{}
+		for _, val := range defn {
+			expand := d.recurDef(wordMap, val)
+			if len(expand) != 0 {
+				newDefn = append(newDefn, expand...)
+			} else {
+				newDefn = append(newDefn, val)
+			}
 		}
-		return defn
+		return newDefn
 	}
 }
 
