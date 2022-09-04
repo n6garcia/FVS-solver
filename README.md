@@ -2,6 +2,17 @@
 
 ### `What is the smallest set of words that can be used to define every word in the dictionary?`
 
+## Findings
+Using the algorithm described above I found a set of 15,660 words that can be used to define every word in the 129,277 node digraph that I generated from the 110,376 word dictionary I used for this test. The words can be found in the vertexCover.json file in the data folder. I also found a set of 18,977 words that are in the graph but have no definition, these words come from the dictionary words in the definitions. These words can be found in freeWords.json. Since the free words have no definition they are also included in the minimal set. So in total about 34,637 words are required to be learned in order to define this whole dictionary. I believe that with Lemmatization, the amount of words in that set can be significantly dropped. I hope that Lemmatization can reduce the amount of words in the graph with no definition since there is nothing the algorithmn can do about these words, they are an added constant to the amount of words in the set.
+
+### Interesting Words in Cover
+They, An, In, Let, To, It, I, Cat, God, Bible, Angel...
+
+## Website
+An application of the minimal set of words on my website where definitions of any word can be searched up and defined using only words in the minimal set.
+
+https://noeldev.site/search/search.html
+
 ## The Solution
 My solution to the problem is a little complex but it involves creating a directed graph from the dictionary (including the words in the definition) with words as keys. By searching for a modified vertex cover on our modified digraph using the algorithmn we have we get an approximation for the smallest word set. From all the research I've done on the problem it seems to that finding the perfect solution is an NP hard problem so an approximation algorithmn seems to be the best I can do. 
 
@@ -15,17 +26,6 @@ We add edges to the graph we construct where, a points to b if that a is in b's 
 ### The Algorithmn
 
 I thought of many algorithmns, some of which involved SCC's, but I went with a simple greedy solution. My solution to finding a modified vertex cover is to delete the highest out-degree vertex one at a time until every vertex in the graph is gone, either by being deleted or popped. By saving every vertex me manually delete we can get a modified vertex cover that can be used to "define" every other word in the graph.
-
-## Findings
-Using the algorithm described above I found a set of 15,660 words that can be used to define every word in the 129,277 node digraph that I generated from the 110,376 word dictionary I used for this test. The words can be found in the vertexCover.json file in the data folder. I also found a set of 18,977 words that are in the graph but have no definition, these words come from the dictionary words in the definitions. These words can be found in freeWords.json. Since the free words have no definition they are also included in the minimal set. So in total about 34,637 words are required to be learned in order to define this whole dictionary. I believe that with Lemmatization, the amount of words in that set can be significantly dropped. I hope that Lemmatization can reduce the amount of words in the graph with no definition since there is nothing the algorithmn can do about these words, they are an added constant to the amount of words in the set.
-
-### Interesting Words in Cover
-They, An, In, Let, To, It, I, Cat, God, Bible, Angel...
-
-## Website
-An application of the minimal set of words on my website where definitions of any word can be searched up and defined using only words in the minimal set.
-
-https://noeldev.site/search/search.html
 
 ## Dataset
 https://www.bragitoff.com/2016/03/english-dictionary-in-csv-format/
