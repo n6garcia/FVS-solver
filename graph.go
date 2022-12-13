@@ -14,6 +14,7 @@ type Vertex struct {
 	inList  []*Vertex
 }
 
+// adds vertex to graph with key k, will not add duplicates
 func (g *Graph) AddVertex(k string) {
 	if !g.contains(k) {
 		vertex := &Vertex{key: k}
@@ -21,12 +22,13 @@ func (g *Graph) AddVertex(k string) {
 	}
 }
 
+// function which returns whether the vertex with key k is in the graph
 func (g *Graph) contains(k string) bool {
 	_, ok := g.vertices[k]
 	return ok
 }
 
-// from ---> to
+// Adds Edge to graph going (from) --> (to) if it doesn't already exist
 func (g *Graph) AddEdge(from string, to string) {
 	fromVertex := g.getVertex(from)
 	toVertex := g.getVertex(to)
@@ -39,6 +41,7 @@ func (g *Graph) AddEdge(from string, to string) {
 	}
 }
 
+// returns whether edge exists in from's outlist
 func containsEdge(from *Vertex, to string) bool {
 	for _, v := range from.outList {
 		if v.key == to {
@@ -48,6 +51,7 @@ func containsEdge(from *Vertex, to string) bool {
 	return false
 }
 
+// retrieves vertex from graph
 func (g *Graph) getVertex(k string) *Vertex {
 	val, ok := g.vertices[k]
 	if ok {
@@ -57,6 +61,7 @@ func (g *Graph) getVertex(k string) *Vertex {
 	}
 }
 
+// Deletes Vertex from graph, Warning: Doesn't delete null ptrs in adjacency lists, call clearLists()
 func (g *Graph) DeleteVertex(k string) {
 
 	val, ok := g.vertices[k]
@@ -75,6 +80,7 @@ func (g *Graph) clearLists() {
 	}
 }
 
+// Removes null ptrs from adjacency list
 func rmList(li []*Vertex) []*Vertex {
 	for i, v := range li {
 		if v.key == "" {
@@ -88,11 +94,13 @@ func rmList(li []*Vertex) []*Vertex {
 
 }
 
+// list removal method
 func remove(s []*Vertex, i int) []*Vertex {
 	s[i] = s[len(s)-1]
 	return s[:len(s)-1]
 }
 
+// Prints Graph
 func (g *Graph) Print() {
 	for _, v := range g.vertices {
 		fmt.Printf("\nVertex: %s", v.key)
@@ -107,6 +115,7 @@ func (g *Graph) Print() {
 	}
 }
 
+// Prints Vertex from Graph
 func (g *Graph) PrintVert(k string) {
 	for _, v := range g.vertices {
 		if v.key == k {
@@ -123,14 +132,17 @@ func (g *Graph) PrintVert(k string) {
 	}
 }
 
+// Prints Graph Size
 func (g *Graph) PrintSize() {
 	fmt.Println("\ngSize: ", len(g.vertices))
 }
 
+// Returns Graph Size
 func (g *Graph) Size() int {
 	return len(g.vertices)
 }
 
+// Transfers Data in Dictionary to Graph
 func (g *Graph) AddData(d *Dictionary) {
 	for _, v := range d.definitions {
 		g.AddVertex(v.name)
@@ -147,6 +159,9 @@ func (g *Graph) AddData(d *Dictionary) {
 	}
 }
 
+/* METHODS BELOW NEED FIXING, BAD RUNTIME */
+
+// GOOD
 func (g *Graph) top() []string {
 
 	var freeWords []string
@@ -160,6 +175,7 @@ func (g *Graph) top() []string {
 	return freeWords
 }
 
+// BAD
 func (g *Graph) pop() int {
 	pops := 0
 	for _, v := range g.vertices {
@@ -174,6 +190,7 @@ func (g *Graph) pop() int {
 	return pops
 }
 
+// BAD
 func (g *Graph) firstPop() {
 	pops := g.pop()
 
@@ -182,6 +199,7 @@ func (g *Graph) firstPop() {
 	}
 }
 
+// OK
 func (g *Graph) vertCover() []string {
 	g.firstPop()
 
@@ -194,6 +212,7 @@ func (g *Graph) vertCover() []string {
 	return delNodes
 }
 
+// BAD
 func (g *Graph) delHighest() string {
 	vert := g.findHighest()
 	key := vert.key
@@ -210,6 +229,7 @@ func (g *Graph) delHighest() string {
 	return key
 }
 
+// BAD O(N) runtime
 func (g *Graph) findHighest() *Vertex {
 	var vert *Vertex
 	top := 0

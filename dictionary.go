@@ -7,6 +7,11 @@ import (
 	"os"
 )
 
+/* COULD BE OPTIMIZED BUT HAS OK RUNTIME FOR NOW */
+// could easily be a map of string to []string, ... literally a dictionary ...
+// spaghetti code can be optimized to make recursive definition search much faster
+// by using a map DS, though doesn't affect time takes to find vertexCover at all
+
 type Dictionary struct {
 	definitions []*Definition
 }
@@ -14,11 +19,6 @@ type Dictionary struct {
 type Definition struct {
 	name  string
 	words []string
-}
-
-// unsafe add, we assume no duplicate entries in dictionary
-func (d *Dictionary) addDef(n string, w []string) {
-	d.definitions = append(d.definitions, &Definition{name: n, words: w})
 }
 
 func (d *Dictionary) Print() {
@@ -30,6 +30,11 @@ func (d *Dictionary) Print() {
 
 func (d *Dictionary) PrintSize() {
 	fmt.Println("\nsize : ", len(d.definitions))
+}
+
+// unsafe add, we assume no duplicate entries in dictionary
+func (d *Dictionary) addDef(n string, w []string) {
+	d.definitions = append(d.definitions, &Definition{name: n, words: w})
 }
 
 func (d *Dictionary) loadData(fn string) {
