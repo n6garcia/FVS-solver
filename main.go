@@ -11,6 +11,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// 2nd Draft
+
 var delNodes []string
 var tGraph *Graph
 var dict *Dictionary
