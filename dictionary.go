@@ -5,15 +5,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"sync"
 )
 
-/* COULD BE OPTIMIZED BUT HAS OK RUNTIME FOR NOW */
-// could easily be a map of string to []string, ... literally a dictionary ...
-// spaghetti code can be optimized to make recursive definition search much faster
-// by using a map DS, though doesn't affect time takes to find vertexCover at all
-
 type Dictionary struct {
-	definitions []*Definition
+	definitions map[string]*Definition
+	//definitions []*Definition
+	// ^--- old DS
 }
 
 type Definition struct {
@@ -32,9 +30,9 @@ func (d *Dictionary) PrintSize() {
 	fmt.Println("\nsize : ", len(d.definitions))
 }
 
-// unsafe add, we assume no duplicate entries in dictionary
 func (d *Dictionary) addDef(n string, w []string) {
-	d.definitions = append(d.definitions, &Definition{name: n, words: w})
+	defn := &Definition{name: n, words: w}
+	d.definitions[n] = defn
 }
 
 func (d *Dictionary) loadData(fn string) {
@@ -45,7 +43,7 @@ func (d *Dictionary) loadData(fn string) {
 	}
 	defer file.Close()
 
-	fmt.Println("\nfile: ", fn)
+	fmt.Println("file: ", fn)
 
 	scanner := bufio.NewScanner(file)
 
@@ -58,7 +56,7 @@ func (d *Dictionary) loadData(fn string) {
 
 	bytes := []byte(txt)
 
-	fmt.Println("\nisValid: ", json.Valid(bytes))
+	fmt.Println("isValid: ", json.Valid(bytes))
 
 	var myData map[string][]interface{}
 
@@ -89,19 +87,11 @@ func (d *Dictionary) expandDef(delNodes []string, k string) []string {
 		wordMap[val] = true
 	}
 
-	for _, val := range d.definitions {
-		if val.name == k {
-			defn = val.words
-			break
-		}
-	}
+	defn = d.findDef(k)
 
 	var newDefn []string = []string{}
-	fmt.Println(defn)
 	for _, val := range defn {
-		fmt.Println(val)
-		expand := d.recurDef(wordMap, val)
-		fmt.Println(expand)
+		expand := d.recursiveSearch(wordMap, val)
 		if len(expand) != 0 {
 			newDefn = append(newDefn, expand...)
 		} else {
@@ -112,7 +102,7 @@ func (d *Dictionary) expandDef(delNodes []string, k string) []string {
 	return newDefn
 }
 
-func (d *Dictionary) recurDef(wordMap map[string]bool, k string) []string {
+func (d *Dictionary) recursiveSearch(wordMap map[string]bool, k string) []string {
 	val, ok := wordMap[k]
 	if !ok || val {
 		return []string{}
@@ -120,7 +110,7 @@ func (d *Dictionary) recurDef(wordMap map[string]bool, k string) []string {
 		defn := d.findDef(k)
 		var newDefn []string = []string{}
 		for _, val := range defn {
-			expand := d.recurDef(wordMap, val)
+			expand := d.recursiveSearch(wordMap, val)
 			if len(expand) != 0 {
 				newDefn = append(newDefn, expand...)
 			} else {
@@ -131,24 +121,47 @@ func (d *Dictionary) recurDef(wordMap map[string]bool, k string) []string {
 	}
 }
 
+// for use in recursiveSearch
 func (d *Dictionary) findDef(k string) []string {
-	for _, val := range d.definitions {
-		if val.name == k {
-			return val.words
-		}
+	defn, ok := d.definitions[k]
+	if ok {
+		return defn.words
+	} else {
+		return []string{}
 	}
-	return []string{}
 }
 
-// for use outside recurDef
+// for use in main()
 func (d *Dictionary) getDef(k string) []string {
 	if k == "" {
 		return nil
 	}
-	for _, val := range d.definitions {
-		if val.name == k {
-			return val.words
-		}
+	defn, ok := d.definitions[k]
+	if ok {
+		return defn.words
+	} else {
+		return nil
 	}
-	return nil
+}
+
+func (d *Dictionary) verify(delNodes []string) bool {
+	var wg sync.WaitGroup
+
+	totalCount := len(d.definitions)
+	count := 1
+
+	for _, val := range d.definitions {
+		wg.Add(1)
+		fmt.Println(count, " / ", totalCount)
+		count = count + 1
+		go func(val *Definition) {
+			d.expandDef(delNodes, val.name)
+			wg.Done()
+		}(val)
+	}
+
+	wg.Wait()
+
+	return true
+
 }

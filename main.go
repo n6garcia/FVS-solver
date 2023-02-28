@@ -104,9 +104,7 @@ func handleServer() {
 
 func main() {
 
-	tGraph = &Graph{vertices: make(map[string]*Vertex)}
-
-	dict = &Dictionary{}
+	dict = &Dictionary{definitions: make(map[string]*Definition)}
 
 	for ch := 'A'; ch <= 'Z'; ch++ {
 		dict.loadData(string(ch) + ".json")
@@ -115,6 +113,8 @@ func main() {
 	dict.PrintSize()
 
 	/*
+		tGraph = &Graph{vertices: make(map[string]*Vertex)}
+
 		tGraph.AddData(dict)
 
 		tGraph.PrintSize()
@@ -132,7 +132,11 @@ func main() {
 		fmt.Println("nodes removed: ", len(delNodes))
 	*/
 
-	delNodes = getNodes()
+	//delNodes = getNodes()
 
-	handleServer()
+	//verified := dict.verify(delNodes)
+
+	//log.Println(verified)
+
+	//handleServer()
 }
