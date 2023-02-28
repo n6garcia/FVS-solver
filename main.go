@@ -145,11 +145,21 @@ func main() {
 
 	/* verify solution */
 
-	//delNodes = getNodes()
+	/*
 
-	//verified := dict.verify(delNodes)
+		start = time.Now()
 
-	//log.Println(verified)
+		delNodes = getNodes()
+
+		verified := dict.verify(delNodes)
+
+		log.Println(verified)
+
+		t = time.Now()
+		elapsed = t.Sub(start)
+		fmt.Println("time elapsed : ", elapsed)
+
+	*/
 
 	/* handle online service */
 

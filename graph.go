@@ -228,7 +228,6 @@ func (g *Graph) firstPop() {
 	}
 }
 
-// OK
 func (g *Graph) vertCover() []string {
 	g.firstPop()
 
@@ -257,7 +256,7 @@ func (g *Graph) delHighest() string {
 	return key
 }
 
-// BAD O(N) runtime, fix with PQ?
+// BAD O(N^N) runtime, fix with PQ?
 func (g *Graph) findHighest() *Vertex {
 	var vert *Vertex
 	top := 0
