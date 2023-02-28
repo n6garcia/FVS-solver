@@ -62,13 +62,18 @@ func (g *Graph) getVertex(k string) *Vertex {
 }
 
 // Deletes Vertex from graph, Warning: Doesn't delete null ptrs in adjacency lists, call clearLists()
-func (g *Graph) DeleteVertex(k string) {
+func (g *Graph) DeleteVertex(k string) []*Vertex {
 
 	val, ok := g.vertices[k]
 	if ok {
+		outLi := val.outList
 		*val = Vertex{}
 		delete(g.vertices, k)
+
+		return outLi
 	}
+
+	return []*Vertex{}
 
 }
 
@@ -159,9 +164,11 @@ func (g *Graph) AddData(d *Dictionary) {
 	}
 }
 
-/* METHODS BELOW NEED FIXING, BAD RUNTIME */
+/* OPTIMIZE RUNTIME
+IDEAS :
+1. Add PQ for findHighest!
+*/
 
-// GOOD
 func (g *Graph) top() []string {
 
 	var freeWords []string
@@ -175,27 +182,49 @@ func (g *Graph) top() []string {
 	return freeWords
 }
 
-// BAD
-func (g *Graph) pop() int {
+// only used for first pop
+func (g *Graph) pop() (int, []*Vertex) {
 	pops := 0
+	var delList []*Vertex
+	var li []*Vertex
+
 	for _, v := range g.vertices {
 		if len(v.inList) == 0 {
-			g.DeleteVertex(v.key)
+			li = g.DeleteVertex(v.key)
+			delList = append(delList, li...)
 			pops++
 		}
 	}
 
 	g.clearLists()
 
-	return pops
+	return pops, delList
 }
 
-// BAD
+func (g *Graph) popList(outLi []*Vertex) (int, []*Vertex) {
+	pops := 0
+	var delList []*Vertex
+	var li []*Vertex
+
+	for _, v := range outLi {
+		if len(v.inList) == 0 {
+			li = g.DeleteVertex(v.key)
+			delList = append(delList, li...)
+			pops++
+		}
+
+	}
+
+	g.clearLists()
+
+	return pops, delList
+}
+
 func (g *Graph) firstPop() {
-	pops := g.pop()
+	pops, delList := g.pop()
 
 	for pops != 0 {
-		pops = g.pop()
+		pops, delList = g.popList(delList)
 	}
 }
 
@@ -212,24 +241,23 @@ func (g *Graph) vertCover() []string {
 	return delNodes
 }
 
-// BAD
 func (g *Graph) delHighest() string {
 	vert := g.findHighest()
 	key := vert.key
 
-	g.DeleteVertex(vert.key)
+	delList := g.DeleteVertex(vert.key)
 	g.clearLists()
 
-	pops := g.pop()
+	pops, delList := g.popList(delList)
 
 	for pops != 0 {
-		pops = g.pop()
+		pops, delList = g.popList(delList)
 	}
 
 	return key
 }
 
-// BAD O(N) runtime
+// BAD O(N) runtime, fix with PQ?
 func (g *Graph) findHighest() *Vertex {
 	var vert *Vertex
 	top := 0

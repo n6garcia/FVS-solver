@@ -7,11 +7,10 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gorilla/mux"
 )
-
-// 2nd Draft
 
 var delNodes []string
 var tGraph *Graph
@@ -104,6 +103,10 @@ func handleServer() {
 
 func main() {
 
+	/* set-up dictionary */
+
+	start := time.Now()
+
 	dict = &Dictionary{definitions: make(map[string]*Definition)}
 
 	for ch := 'A'; ch <= 'Z'; ch++ {
@@ -112,31 +115,43 @@ func main() {
 
 	dict.PrintSize()
 
-	/*
-		tGraph = &Graph{vertices: make(map[string]*Vertex)}
+	t := time.Now()
+	elapsed := t.Sub(start)
+	fmt.Println("time elapsed : ", elapsed)
 
-		tGraph.AddData(dict)
+	/* set-up graph and solve */
 
-		tGraph.PrintSize()
+	start = time.Now()
 
-		listFree := tGraph.top()
+	tGraph = &Graph{vertices: make(map[string]*Vertex)}
 
-		write(listFree, "freeWords.json")
+	tGraph.AddData(dict)
 
-		fmt.Println("\nlistFree: ", len(listFree))
+	listFree := tGraph.top()
 
-		delNodes = tGraph.vertCover()
+	write(listFree, "freeWords.json")
 
-		write(delNodes, "delNodes.json")
+	fmt.Println("\nlistFree: ", len(listFree))
 
-		fmt.Println("nodes removed: ", len(delNodes))
-	*/
+	delNodes = tGraph.vertCover()
+
+	write(delNodes, "delNodes.json")
+
+	fmt.Println("nodes removed: ", len(delNodes))
+
+	t = time.Now()
+	elapsed = t.Sub(start)
+	fmt.Println("time elapsed : ", elapsed)
+
+	/* verify solution */
 
 	//delNodes = getNodes()
 
 	//verified := dict.verify(delNodes)
 
 	//log.Println(verified)
+
+	/* handle online service */
 
 	//handleServer()
 }
