@@ -121,45 +121,44 @@ func main() {
 
 	/* set-up graph and solve */
 
-	start = time.Now()
-
-	tGraph = &Graph{vertices: make(map[string]*Vertex)}
-
-	tGraph.AddData(dict)
-
-	listFree := tGraph.top()
-
-	write(listFree, "freeWords.json")
-
-	fmt.Println("\nlistFree: ", len(listFree))
-
-	delNodes = tGraph.vertCover()
-
-	write(delNodes, "delNodes.json")
-
-	fmt.Println("nodes removed: ", len(delNodes))
-
-	t = time.Now()
-	elapsed = t.Sub(start)
-	fmt.Println("time elapsed : ", elapsed)
-
-	/* verify solution */
-
 	/*
-
 		start = time.Now()
 
-		delNodes = getNodes()
+		tGraph = &Graph{vertices: make(map[string]*Vertex)}
 
-		verified := dict.verify(delNodes)
+		tGraph.AddData(dict)
 
-		log.Println(verified)
+		listFree := tGraph.top()
+
+		write(listFree, "freeWords.json")
+
+		fmt.Println("\nlistFree: ", len(listFree))
+
+		delNodes = tGraph.vertCover()
+
+		write(delNodes, "delNodes.json")
+
+		fmt.Println("nodes removed: ", len(delNodes))
 
 		t = time.Now()
 		elapsed = t.Sub(start)
 		fmt.Println("time elapsed : ", elapsed)
 
 	*/
+
+	/* verify solution */
+
+	start = time.Now()
+
+	delNodes = getNodes()
+
+	verified := dict.verify(delNodes)
+
+	fmt.Println("verified: ", verified)
+
+	t = time.Now()
+	elapsed = t.Sub(start)
+	fmt.Println("time elapsed : ", elapsed)
 
 	/* handle online service */
 

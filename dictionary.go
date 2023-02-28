@@ -147,13 +147,10 @@ func (d *Dictionary) getDef(k string) []string {
 func (d *Dictionary) verify(delNodes []string) bool {
 	var wg sync.WaitGroup
 
-	totalCount := len(d.definitions)
-	count := 1
+	fmt.Println("verifying...")
 
 	for _, val := range d.definitions {
 		wg.Add(1)
-		fmt.Println(count, " / ", totalCount)
-		count = count + 1
 		go func(val *Definition) {
 			d.expandDef(delNodes, val.name)
 			wg.Done()
