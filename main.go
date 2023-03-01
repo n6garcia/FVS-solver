@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -147,50 +148,84 @@ func main() {
 		fmt.Println("\ntime elapsed : ", elapsed)
 	*/
 
-	/* Export Graph*/
+	/* Export Graph Json*/
 
-	type node struct {
-		Name string `json:"name"`
-	}
+	/*
+		type node struct {
+			Name string `json:"name"`
+		}
 
-	type link struct {
-		Source string `json:"source"`
-		Target string `json:"target"`
-	}
+		type link struct {
+			Source string `json:"source"`
+			Target string `json:"target"`
+		}
 
-	type expGraph struct {
-		Nodes []node `json:"nodes"`
-		Links []link `json:"links"`
+		type expGraph struct {
+			Nodes []node `json:"nodes"`
+			Links []link `json:"links"`
+		}
+
+		tGraph = &Graph{vertices: make(map[string]*Vertex)}
+		tGraph.AddData(dict)
+
+		var export expGraph
+
+		for _, vert := range tGraph.vertices {
+			n := node{vert.key}
+
+			export.Nodes = append(export.Nodes, n)
+
+			for _, out := range vert.outList {
+				l := link{vert.key, out.key}
+
+				export.Links = append(export.Links, l)
+			}
+
+		}
+
+		b, err := json.MarshalIndent(export, "", "")
+
+		if err != nil {
+			fmt.Printf("Error: %s", err.Error())
+		} else {
+			err = os.WriteFile("data/expGraph.json", b, 0644)
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+	*/
+
+	/* Export Graph CSV*/
+
+	rows := [][]string{
+		{"source", "target"},
 	}
 
 	tGraph = &Graph{vertices: make(map[string]*Vertex)}
 	tGraph.AddData(dict)
 
-	var export expGraph
-
 	for _, vert := range tGraph.vertices {
-		n := node{vert.key}
-
-		export.Nodes = append(export.Nodes, n)
 
 		for _, out := range vert.outList {
-			l := link{vert.key, out.key}
-
-			export.Links = append(export.Links, l)
+			rows = append(rows, []string{vert.key, out.key})
 		}
 
 	}
 
-	b, err := json.MarshalIndent(export, "", "")
+	csvfile, err := os.Create("data/expCSV.csv")
 
 	if err != nil {
-		fmt.Printf("Error: %s", err.Error())
-	} else {
-		err = os.WriteFile("data/expGraph.json", b, 0644)
-		if err != nil {
-			log.Fatal(err)
-		}
+		log.Fatalf("Failed to create file, : %s", err)
 	}
+
+	cswriter := csv.NewWriter(csvfile)
+
+	for _, row := range rows {
+		_ = cswriter.Write(row)
+	}
+
+	cswriter.Flush()
+	csvfile.Close()
 
 	/* verify solution */
 
