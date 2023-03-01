@@ -123,26 +123,74 @@ func main() {
 
 	/* set-up graph and solve */
 
-	start = time.Now()
+	/*
 
-	tGraph = &Graph{vertices: make(map[string]*Vertex), pqIdx: make(map[string]*Item)}
+		start = time.Now()
 
+		tGraph = &Graph{vertices: make(map[string]*Vertex), pqIdx: make(map[string]*Item)}
+
+		tGraph.AddData(dict)
+		tGraph.initPQ()
+
+		listFree := tGraph.top()
+
+		write(listFree, "freeWords.json")
+
+		delNodes = tGraph.modCover()
+
+		write(delNodes, "delNodes.json")
+
+		fmt.Println("nodes removed: ", len(delNodes))
+
+		t = time.Now()
+		elapsed = t.Sub(start)
+		fmt.Println("\ntime elapsed : ", elapsed)
+	*/
+
+	/* Export Graph*/
+
+	type node struct {
+		Name string `json:"name"`
+	}
+
+	type link struct {
+		Source string `json:"source"`
+		Target string `json:"target"`
+	}
+
+	type expGraph struct {
+		Nodes []node `json:"nodes"`
+		Links []link `json:"links"`
+	}
+
+	tGraph = &Graph{vertices: make(map[string]*Vertex)}
 	tGraph.AddData(dict)
-	tGraph.initPQ()
 
-	listFree := tGraph.top()
+	var export expGraph
 
-	write(listFree, "freeWords.json")
+	for _, vert := range tGraph.vertices {
+		n := node{vert.key}
 
-	delNodes = tGraph.modCover()
+		export.Nodes = append(export.Nodes, n)
 
-	write(delNodes, "delNodes.json")
+		for _, out := range vert.outList {
+			l := link{vert.key, out.key}
 
-	fmt.Println("nodes removed: ", len(delNodes))
+			export.Links = append(export.Links, l)
+		}
 
-	t = time.Now()
-	elapsed = t.Sub(start)
-	fmt.Println("\ntime elapsed : ", elapsed)
+	}
+
+	b, err := json.MarshalIndent(export, "", "")
+
+	if err != nil {
+		fmt.Printf("Error: %s", err.Error())
+	} else {
+		err = os.WriteFile("data/expGraph.json", b, 0644)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
 
 	/* verify solution */
 
