@@ -1,11 +1,14 @@
 package main
 
 import (
+	"container/heap"
 	"fmt"
 )
 
 type Graph struct {
 	vertices map[string]*Vertex
+	pq       PriorityQueue
+	pqIdx    map[string]*Item
 }
 
 type Vertex struct {
@@ -66,9 +69,16 @@ func (g *Graph) DeleteVertex(k string) []*Vertex {
 
 	val, ok := g.vertices[k]
 	if ok {
-		outLi := val.outList
+		//outLi := val.outList
+		// ^--- shallow copy?
+
+		outLi := make([]*Vertex, len(val.outList))
+		copy(outLi, val.outList)
+
 		*val = Vertex{}
 		delete(g.vertices, k)
+
+		g.removePQ(k)
 
 		return outLi
 	}
@@ -149,6 +159,9 @@ func (g *Graph) Size() int {
 
 // Transfers Data in Dictionary to Graph
 func (g *Graph) AddData(d *Dictionary) {
+
+	fmt.Println("adding data to graph...")
+
 	for _, v := range d.definitions {
 		g.AddVertex(v.name)
 		for _, word := range v.words {
@@ -164,12 +177,9 @@ func (g *Graph) AddData(d *Dictionary) {
 	}
 }
 
-/* OPTIMIZE RUNTIME
-IDEAS :
-1. Add PQ for findHighest!
-*/
-
 func (g *Graph) top() []string {
+
+	fmt.Println("finding free words...")
 
 	var freeWords []string
 
@@ -197,6 +207,12 @@ func (g *Graph) pop() (int, []*Vertex) {
 	}
 
 	g.clearLists()
+	for _, v := range delList {
+		item, ok := g.pqIdx[v.key]
+		if ok {
+			g.pq.update(item, v, len(v.outList))
+		}
+	}
 
 	return pops, delList
 }
@@ -216,6 +232,12 @@ func (g *Graph) popList(outLi []*Vertex) (int, []*Vertex) {
 	}
 
 	g.clearLists()
+	for _, v := range delList {
+		item, ok := g.pqIdx[v.key]
+		if ok {
+			g.pq.update(item, v, len(v.outList))
+		}
+	}
 
 	return pops, delList
 }
@@ -228,7 +250,9 @@ func (g *Graph) firstPop() {
 	}
 }
 
-func (g *Graph) vertCover() []string {
+func (g *Graph) modCover() []string {
+	fmt.Println("performing mod cover...")
+
 	g.firstPop()
 
 	var delNodes []string
@@ -245,7 +269,14 @@ func (g *Graph) delHighest() string {
 	key := vert.key
 
 	delList := g.DeleteVertex(vert.key)
+
 	g.clearLists()
+	for _, v := range delList {
+		item, ok := g.pqIdx[v.key]
+		if ok {
+			g.pq.update(item, v, len(v.outList))
+		}
+	}
 
 	pops, delList := g.popList(delList)
 
@@ -257,6 +288,10 @@ func (g *Graph) delHighest() string {
 }
 
 // BAD O(N^N) runtime, fix with PQ?
+// note: need PQ with delete function
+// would runtime be any better?
+// (constant reshuffling and updating)
+/*
 func (g *Graph) findHighest() *Vertex {
 	var vert *Vertex
 	top := 0
@@ -269,4 +304,95 @@ func (g *Graph) findHighest() *Vertex {
 	}
 
 	return vert
+}*/
+
+func (g *Graph) findHighest() *Vertex {
+	item := heap.Pop(&g.pq).(*Item)
+	delete(g.pqIdx, item.value.key)
+
+	return item.value
+}
+
+/* PQ implementation */
+
+// An Item is something we manage in a priority queue.
+type Item struct {
+	value    *Vertex // The value of the item; arbitrary.
+	priority int     // The priority of the item in the queue.
+	// The index is needed by update and is maintained by the heap.Interface methods.
+	index int // The index of the item in the heap.
+}
+
+// A PriorityQueue implements heap.Interface and holds Items.
+type PriorityQueue []*Item
+
+func (pq PriorityQueue) Len() int { return len(pq) }
+
+func (pq PriorityQueue) Less(i, j int) bool {
+	// We want Pop to give us the highest, not lowest, priority so we use greater than here.
+	return pq[i].priority > pq[j].priority
+}
+
+func (pq PriorityQueue) Swap(i, j int) {
+	pq[i], pq[j] = pq[j], pq[i]
+	pq[i].index = i
+	pq[j].index = j
+}
+
+func (pq *PriorityQueue) Push(x any) {
+	n := len(*pq)
+	item := x.(*Item)
+	item.index = n
+	*pq = append(*pq, item)
+}
+
+func (pq *PriorityQueue) Pop() any {
+	old := *pq
+	n := len(old)
+	item := old[n-1]
+	old[n-1] = nil  // avoid memory leak
+	item.index = -1 // for safety
+	*pq = old[0 : n-1]
+	return item
+}
+
+// Note: always CALL after clearLists
+// update modifies the priority and value of an Item in the queue.
+func (pq *PriorityQueue) update(item *Item, value *Vertex, priority int) {
+	item.value = value
+	item.priority = priority
+	heap.Fix(pq, item.index)
+}
+
+func (g *Graph) removePQ(k string) {
+	item, ok := g.pqIdx[k]
+
+	if ok {
+
+		heap.Remove(&g.pq, item.index)
+		heap.Init(&g.pq)
+
+		delete(g.pqIdx, k)
+	}
+
+}
+
+func (g *Graph) initPQ() {
+	fmt.Println("initializing PQ...")
+
+	g.pq = make(PriorityQueue, len(g.vertices))
+	i := 0
+	for _, v := range g.vertices {
+		g.pq[i] = &Item{
+			value:    v,
+			priority: len(v.outList),
+			index:    i,
+		}
+		i++
+	}
+	heap.Init(&g.pq)
+
+	for _, item := range g.pq {
+		g.pqIdx[item.value.key] = item
+	}
 }
