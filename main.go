@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -124,29 +123,26 @@ func main() {
 
 	/* set-up graph and solve */
 
-	/*
+	start = time.Now()
 
-		start = time.Now()
+	tGraph = &Graph{vertices: make(map[string]*Vertex), pqIdx: make(map[string]*Item)}
 
-		tGraph = &Graph{vertices: make(map[string]*Vertex), pqIdx: make(map[string]*Item)}
+	tGraph.AddData(dict)
+	tGraph.initPQ()
 
-		tGraph.AddData(dict)
-		tGraph.initPQ()
+	listFree := tGraph.top()
 
-		listFree := tGraph.top()
+	write(listFree, "freeWords.json")
 
-		write(listFree, "freeWords.json")
+	delNodes = tGraph.modCover()
 
-		delNodes = tGraph.modCover()
+	write(delNodes, "delNodes.json")
 
-		write(delNodes, "delNodes.json")
+	fmt.Println("nodes removed: ", len(delNodes))
 
-		fmt.Println("nodes removed: ", len(delNodes))
-
-		t = time.Now()
-		elapsed = t.Sub(start)
-		fmt.Println("\ntime elapsed : ", elapsed)
-	*/
+	t = time.Now()
+	elapsed = t.Sub(start)
+	fmt.Println("\ntime elapsed : ", elapsed)
 
 	/* Export Graph Json*/
 
@@ -197,53 +193,51 @@ func main() {
 
 	/* Export Graph CSV*/
 
-	rows := [][]string{
-		{"source", "target"},
-	}
-
-	tGraph = &Graph{vertices: make(map[string]*Vertex)}
-	tGraph.AddData(dict)
-
-	for _, vert := range tGraph.vertices {
-
-		for _, out := range vert.outList {
-			rows = append(rows, []string{vert.key, out.key})
+	/*
+		rows := [][]string{
+			{"source", "target"},
 		}
 
-	}
+		tGraph = &Graph{vertices: make(map[string]*Vertex)}
+		tGraph.AddData(dict)
 
-	csvfile, err := os.Create("data/expCSV.csv")
+		for _, vert := range tGraph.vertices {
 
-	if err != nil {
-		log.Fatalf("Failed to create file, : %s", err)
-	}
+			for _, out := range vert.outList {
+				rows = append(rows, []string{vert.key, out.key})
+			}
 
-	cswriter := csv.NewWriter(csvfile)
+		}
 
-	for _, row := range rows {
-		_ = cswriter.Write(row)
-	}
+		csvfile, err := os.Create("data/expCSV.csv")
 
-	cswriter.Flush()
-	csvfile.Close()
+		if err != nil {
+			log.Fatalf("Failed to create file, : %s", err)
+		}
+
+		cswriter := csv.NewWriter(csvfile)
+
+		for _, row := range rows {
+			_ = cswriter.Write(row)
+		}
+
+		cswriter.Flush()
+		csvfile.Close()
+	*/
 
 	/* verify solution */
 
-	/*
+	start = time.Now()
 
-		start = time.Now()
+	delNodes = getNodes()
 
-		delNodes = getNodes()
+	verified := dict.verify(delNodes)
 
-		verified := dict.verify(delNodes)
+	fmt.Println("verified: ", verified)
 
-		fmt.Println("verified: ", verified)
-
-		t = time.Now()
-		elapsed = t.Sub(start)
-		fmt.Println("\ntime elapsed : ", elapsed)
-
-	*/
+	t = time.Now()
+	elapsed = t.Sub(start)
+	fmt.Println("\ntime elapsed : ", elapsed)
 
 	/* handle online service */
 

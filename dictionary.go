@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"sync"
 )
 
 type Dictionary struct {
@@ -147,19 +146,12 @@ func (d *Dictionary) getDef(k string) []string {
 // very slow implementation, for next verifier use graph and bfs!
 // implementation takes about 40m on my computer to run (average hardware)
 func (d *Dictionary) verify(delNodes []string) bool {
-	var wg sync.WaitGroup
 
 	fmt.Println("verifying...")
 
 	for _, val := range d.definitions {
-		wg.Add(1)
-		go func(val *Definition) {
-			d.expandDef(delNodes, val.name)
-			wg.Done()
-		}(val)
+		d.expandDef(delNodes, val.name)
 	}
-
-	wg.Wait()
 
 	return true
 
