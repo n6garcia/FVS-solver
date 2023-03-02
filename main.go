@@ -123,26 +123,64 @@ func main() {
 
 	/* set-up graph and solve */
 
+	/*
+		start = time.Now()
+
+		tGraph = &Graph{vertices: make(map[string]*Vertex), pqIdx: make(map[string]*Item)}
+
+		tGraph.AddData(dict)
+		tGraph.initPQ()
+
+		listFree := tGraph.top()
+
+		write(listFree, "freeWords.json")
+
+		delNodes = tGraph.modCover()
+
+		write(delNodes, "delNodes.json")
+
+		fmt.Println("nodes removed: ", len(delNodes))
+
+		t = time.Now()
+		elapsed = t.Sub(start)
+		fmt.Println("\ntime elapsed : ", elapsed)
+	*/
+
+	/* verify sol. (graph) */
+
 	start = time.Now()
 
-	tGraph = &Graph{vertices: make(map[string]*Vertex), pqIdx: make(map[string]*Item)}
+	delNodes = getNodes()
+
+	tGraph = &Graph{vertices: make(map[string]*Vertex)}
 
 	tGraph.AddData(dict)
-	tGraph.initPQ()
 
 	listFree := tGraph.top()
 
-	write(listFree, "freeWords.json")
+	verified := tGraph.verify(delNodes, listFree)
 
-	delNodes = tGraph.modCover()
-
-	write(delNodes, "delNodes.json")
-
-	fmt.Println("nodes removed: ", len(delNodes))
+	fmt.Println("verified: ", verified)
 
 	t = time.Now()
 	elapsed = t.Sub(start)
 	fmt.Println("\ntime elapsed : ", elapsed)
+
+	/* verify sol. (dictionary) */
+
+	/*
+		start = time.Now()
+
+		delNodes = getNodes()
+
+		verified := dict.verify(delNodes)
+
+		fmt.Println("verified: ", verified)
+
+		t = time.Now()
+		elapsed = t.Sub(start)
+		fmt.Println("\ntime elapsed : ", elapsed)
+	*/
 
 	/* Export Graph Json*/
 
@@ -224,20 +262,6 @@ func main() {
 		cswriter.Flush()
 		csvfile.Close()
 	*/
-
-	/* verify solution */
-
-	start = time.Now()
-
-	delNodes = getNodes()
-
-	verified := dict.verify(delNodes)
-
-	fmt.Println("verified: ", verified)
-
-	t = time.Now()
-	elapsed = t.Sub(start)
-	fmt.Println("\ntime elapsed : ", elapsed)
 
 	/* handle online service */
 

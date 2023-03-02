@@ -66,8 +66,8 @@ func (g *Graph) getVertex(k string) *Vertex {
 
 // Deletes Vertex from graph, Warning: Doesn't delete null ptrs in adjacency lists, call clearLists()
 func (g *Graph) DeleteVertex(k string) []*Vertex {
-
 	val, ok := g.vertices[k]
+
 	if ok {
 		//outLi := val.outList
 		// ^--- shallow copy?
@@ -159,7 +159,6 @@ func (g *Graph) Size() int {
 
 // Transfers Data in Dictionary to Graph
 func (g *Graph) AddData(d *Dictionary) {
-
 	fmt.Println("adding data to graph...")
 
 	for _, v := range d.definitions {
@@ -177,8 +176,43 @@ func (g *Graph) AddData(d *Dictionary) {
 	}
 }
 
-func (g *Graph) top() []string {
+func (g *Graph) verify(delNodes []string, freeWords []string) bool {
+	stopWords := make(map[string]bool)
 
+	for _, v := range g.vertices {
+		stopWords[v.key] = false
+	}
+	for _, k := range delNodes {
+		stopWords[k] = true
+	}
+	for _, k := range freeWords {
+		stopWords[k] = true
+	}
+
+	for k, b := range stopWords {
+		if !b {
+			g.dfs(k, stopWords)
+		}
+	}
+
+	return true
+}
+
+func (g *Graph) dfs(k string, stopWords map[string]bool) {
+	v, ok := g.vertices[k]
+	if ok {
+		b, ok := stopWords[k]
+		if ok {
+			if !b {
+				for _, u := range v.inList {
+					g.dfs(u.key, stopWords)
+				}
+			}
+		}
+	}
+}
+
+func (g *Graph) top() []string {
 	fmt.Println("finding free words...")
 
 	var freeWords []string
