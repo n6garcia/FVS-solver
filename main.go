@@ -124,9 +124,7 @@ func main() {
 	/* set-up graph and solve */
 
 	/*
-		start = time.Now()
-
-		tGraph = &Graph{vertices: make(map[string]*Vertex), pqIdx: make(map[string]*Item)}
+		tGraph = &Graph{vertices: make(map[string]*Vertex), pqMap: make(map[string]*Item)}
 
 		tGraph.AddData(dict)
 		tGraph.initPQ()
@@ -134,6 +132,8 @@ func main() {
 		listFree := tGraph.top()
 
 		write(listFree, "freeWords.json")
+
+		start = time.Now()
 
 		delNodes = tGraph.modCover()
 
@@ -148,8 +148,6 @@ func main() {
 
 	/* verify sol. (graph) */
 
-	start = time.Now()
-
 	delNodes = getNodes()
 
 	tGraph = &Graph{vertices: make(map[string]*Vertex)}
@@ -157,6 +155,8 @@ func main() {
 	tGraph.AddData(dict)
 
 	listFree := tGraph.top()
+
+	start = time.Now()
 
 	verified := tGraph.verify(delNodes, listFree)
 
