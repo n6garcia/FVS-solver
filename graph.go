@@ -17,29 +17,37 @@ type Vertex struct {
 	inList  []*Vertex
 }
 
-func modLen(li []*Vertex) int {
-	count := 0
+/* Graph Population Functions */
 
-	for _, v := range li {
-		if v.key != "" {
-			count += 1
+// Transfers Data in Dictionary to Graph
+func (g *Graph) AddData(d *Dictionary) {
+	fmt.Println("adding data to graph...")
+
+	for _, v := range d.definitions {
+		g.AddVertex(v.name)
+		for _, word := range v.words {
+			g.AddVertex(word)
 		}
 	}
 
-	return count
-
+	for _, v := range d.definitions {
+		for _, word := range v.words {
+			// word defines name
+			g.AddEdge(word, v.name)
+		}
+	}
 }
 
 // adds vertex to graph with key k, will not add duplicates
 func (g *Graph) AddVertex(k string) {
-	if !g.contains(k) {
+	if !g.containsVertex(k) {
 		vertex := &Vertex{key: k}
 		g.vertices[k] = vertex
 	}
 }
 
 // function which returns whether the vertex with key k is in the graph
-func (g *Graph) contains(k string) bool {
+func (g *Graph) containsVertex(k string) bool {
 	_, ok := g.vertices[k]
 	return ok
 }
@@ -77,7 +85,8 @@ func (g *Graph) getVertex(k string) *Vertex {
 	}
 }
 
-// Deletes Vertex from graph, Warning: Doesn't delete null ptrs in adjacency lists, call clearLists()
+// Deletes Vertex from graph, Warning: Doesn't delete null ptrs in adjacency lists
+// Please always use modLen()
 func (g *Graph) DeleteVertex(k string) []*Vertex {
 	val, ok := g.vertices[k]
 
@@ -91,7 +100,7 @@ func (g *Graph) DeleteVertex(k string) []*Vertex {
 		*val = Vertex{}
 		delete(g.vertices, k)
 
-		g.removePQ(k)
+		g.pqRemove(k)
 
 		return outLi
 	}
@@ -100,33 +109,20 @@ func (g *Graph) DeleteVertex(k string) []*Vertex {
 
 }
 
-// Must call after DeleteVertex calls
-func (g *Graph) clearLists() {
-	for _, v := range g.vertices {
-		v.inList = rmList(v.inList)
-		v.outList = rmList(v.outList)
-	}
-}
+func modLen(li []*Vertex) int {
+	count := 0
 
-// Removes null ptrs from adjacency list
-func rmList(li []*Vertex) []*Vertex {
-	for i, v := range li {
-		if v.key == "" {
-			li = remove(li, i)
-			li = rmList(li)
-			break
+	for _, v := range li {
+		if v.key != "" {
+			count += 1
 		}
 	}
 
-	return li
+	return count
 
 }
 
-// list removal method
-func remove(s []*Vertex, i int) []*Vertex {
-	s[i] = s[len(s)-1]
-	return s[:len(s)-1]
-}
+/* Print Functions */
 
 // Prints Graph
 func (g *Graph) Print() {
@@ -170,25 +166,6 @@ func (g *Graph) Size() int {
 	return len(g.vertices)
 }
 
-// Transfers Data in Dictionary to Graph
-func (g *Graph) AddData(d *Dictionary) {
-	fmt.Println("adding data to graph...")
-
-	for _, v := range d.definitions {
-		g.AddVertex(v.name)
-		for _, word := range v.words {
-			g.AddVertex(word)
-		}
-	}
-
-	for _, v := range d.definitions {
-		for _, word := range v.words {
-			// word defines name
-			g.AddEdge(word, v.name)
-		}
-	}
-}
-
 func (g *Graph) verify(delNodes []string, freeWords []string) bool {
 	stopWords := make(map[string]bool)
 
@@ -225,6 +202,22 @@ func (g *Graph) dfs(k string, stopWords map[string]bool) {
 	}
 }
 
+/* Mod Cover Functions */
+
+func (g *Graph) modCover() []string {
+	fmt.Println("performing mod cover...")
+
+	g.firstPop()
+
+	var delNodes []string
+
+	for g.Size() != 0 {
+		delNodes = append(delNodes, g.delHighest())
+	}
+
+	return delNodes
+}
+
 func (g *Graph) top() []string {
 	fmt.Println("finding free words...")
 
@@ -253,6 +246,7 @@ func (g *Graph) pop() (int, []*Vertex) {
 		}
 	}
 
+	g.pqShuffle()
 	g.pqUpdateList(delList)
 
 	return pops, delList
@@ -272,6 +266,7 @@ func (g *Graph) popList(outLi []*Vertex) (int, []*Vertex) {
 
 	}
 
+	g.pqShuffle()
 	g.pqUpdateList(delList)
 
 	return pops, delList
@@ -285,26 +280,13 @@ func (g *Graph) firstPop() {
 	}
 }
 
-func (g *Graph) modCover() []string {
-	fmt.Println("performing mod cover...")
-
-	g.firstPop()
-
-	var delNodes []string
-
-	for g.Size() != 0 {
-		delNodes = append(delNodes, g.delHighest())
-	}
-
-	return delNodes
-}
-
 func (g *Graph) delHighest() string {
 	vert := g.findHighest()
 	key := vert.key
 
 	delList := g.DeleteVertex(vert.key)
 
+	g.pqShuffle()
 	g.pqUpdateList(delList)
 
 	pops, delList := g.popList(delList)
@@ -316,25 +298,6 @@ func (g *Graph) delHighest() string {
 	return key
 }
 
-// BAD O(N^N) runtime, fix with PQ?
-// note: need PQ with delete function
-// would runtime be any better?
-// (constant reshuffling and updating)
-/*
-func (g *Graph) findHighest() *Vertex {
-	var vert *Vertex
-	top := 0
-
-	for _, val := range g.vertices {
-		if len(val.outList) > top {
-			top = len(val.outList)
-			vert = val
-		}
-	}
-
-	return vert
-}*/
-
 func (g *Graph) findHighest() *Vertex {
 	item := heap.Pop(&g.pq).(*Item)
 	delete(g.pqMap, item.value.key)
@@ -342,7 +305,9 @@ func (g *Graph) findHighest() *Vertex {
 	return item.value
 }
 
-func (g *Graph) initPQ() {
+/* Priority Queue Functions */
+
+func (g *Graph) pqInit() {
 	fmt.Println("initializing PQ...")
 
 	g.pq = make(PriorityQueue, len(g.vertices))
@@ -362,15 +327,14 @@ func (g *Graph) initPQ() {
 	}
 }
 
-func (g *Graph) removePQ(k string) {
+func (g *Graph) pqRemove(k string) {
 	item, ok := g.pqMap[k]
 
 	if ok {
 
 		heap.Remove(&g.pq, item.index)
-		heap.Init(&g.pq)
-
 		delete(g.pqMap, k)
+
 	}
 
 }

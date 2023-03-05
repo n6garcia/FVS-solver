@@ -123,48 +123,48 @@ func main() {
 
 	/* set-up graph and solve */
 
+	tGraph = &Graph{vertices: make(map[string]*Vertex), pqMap: make(map[string]*Item)}
+
+	tGraph.AddData(dict)
+	tGraph.pqInit()
+
+	listFree := tGraph.top()
+
+	write(listFree, "freeWords.json")
+
+	start = time.Now()
+
+	delNodes = tGraph.modCover()
+
+	write(delNodes, "delNodes.json")
+
+	fmt.Println("nodes removed: ", len(delNodes))
+
+	t = time.Now()
+	elapsed = t.Sub(start)
+	fmt.Println("\ntime elapsed : ", elapsed)
+
+	/* verify sol. (graph) */
+
 	/*
-		tGraph = &Graph{vertices: make(map[string]*Vertex), pqMap: make(map[string]*Item)}
+		delNodes = getNodes()
+
+		tGraph = &Graph{vertices: make(map[string]*Vertex)}
 
 		tGraph.AddData(dict)
-		tGraph.initPQ()
 
 		listFree := tGraph.top()
 
-		write(listFree, "freeWords.json")
-
 		start = time.Now()
 
-		delNodes = tGraph.modCover()
+		verified := tGraph.verify(delNodes, listFree)
 
-		write(delNodes, "delNodes.json")
-
-		fmt.Println("nodes removed: ", len(delNodes))
+		fmt.Println("verified: ", verified)
 
 		t = time.Now()
 		elapsed = t.Sub(start)
 		fmt.Println("\ntime elapsed : ", elapsed)
 	*/
-
-	/* verify sol. (graph) */
-
-	delNodes = getNodes()
-
-	tGraph = &Graph{vertices: make(map[string]*Vertex)}
-
-	tGraph.AddData(dict)
-
-	listFree := tGraph.top()
-
-	start = time.Now()
-
-	verified := tGraph.verify(delNodes, listFree)
-
-	fmt.Println("verified: ", verified)
-
-	t = time.Now()
-	elapsed = t.Sub(start)
-	fmt.Println("\ntime elapsed : ", elapsed)
 
 	/* verify sol. (dictionary) */
 
