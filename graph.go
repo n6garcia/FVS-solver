@@ -166,6 +166,8 @@ func (g *Graph) Size() int {
 	return len(g.vertices)
 }
 
+/* verify Functions */
+
 func (g *Graph) verify(delNodes []string, freeWords []string) bool {
 	stopWords := make(map[string]bool)
 
