@@ -204,6 +204,77 @@ func (g *Graph) dfs(k string, stopWords map[string]bool) {
 	}
 }
 
+/* too slow! */
+func (g *Graph) verify2(delNodes []string, freeWords []string) bool {
+	stopWords := make(map[string]bool)
+	visited := make(map[string]bool)
+
+	for _, v := range g.vertices {
+		stopWords[v.key] = false
+	}
+	for _, k := range delNodes {
+		stopWords[k] = true
+	}
+	for _, k := range freeWords {
+		stopWords[k] = true
+	}
+
+	for _, v := range g.vertices {
+		visited[v.key] = false
+	}
+
+	for k, b := range stopWords {
+		if !b {
+
+			visitedCpy := make(map[string]bool)
+
+			for key, val := range visited {
+				visitedCpy[key] = val
+			}
+
+			if !g.dfs2(k, stopWords, visitedCpy) {
+				return false
+			}
+		}
+	}
+
+	return true
+}
+
+func (g *Graph) dfs2(k string, stopWords map[string]bool, visited map[string]bool) bool {
+	v, ok := g.vertices[k]
+	if ok {
+		b, ok := visited[k]
+		if ok {
+			if b {
+				return false
+			}
+
+			visited[k] = true
+		}
+
+		b, ok = stopWords[k]
+		if ok {
+			if !b {
+				for _, u := range v.inList {
+
+					visitedCpy := make(map[string]bool)
+
+					for key, val := range visited {
+						visitedCpy[key] = val
+					}
+
+					if !g.dfs2(u.key, stopWords, visitedCpy) {
+						return false
+					}
+				}
+			}
+		}
+	}
+
+	return true
+}
+
 /* Mod Cover Functions */
 
 func (g *Graph) modCover() []string {
