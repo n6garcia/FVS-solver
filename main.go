@@ -158,7 +158,7 @@ func main() {
 
 	start = time.Now()
 
-	verified := tGraph.verify2(delNodes, listFree)
+	verified := tGraph.verify(delNodes, listFree)
 
 	fmt.Println("verified: ", verified)
 

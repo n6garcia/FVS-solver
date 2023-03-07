@@ -168,10 +168,10 @@ func (g *Graph) Size() int {
 
 /* verify Functions */
 
-/* doesn't return false! on false, runs out of memory! */
 func (g *Graph) verify(delNodes []string, freeWords []string) bool {
-	stopWords := make(map[string]bool)
+	fmt.Println("verifying...")
 
+	stopWords := make(map[string]bool)
 	for _, v := range g.vertices {
 		stopWords[v.key] = false
 	}
@@ -182,98 +182,80 @@ func (g *Graph) verify(delNodes []string, freeWords []string) bool {
 		stopWords[k] = true
 	}
 
-	for k, b := range stopWords {
-		if !b {
-			g.dfs(k, stopWords)
+	whiteSet := make(map[string]bool)
+	for k, v := range stopWords {
+		if !v {
+			whiteSet[k] = !v // true
 		}
+	}
+
+	graySet := make(map[string]bool)
+	for k := range whiteSet {
+		graySet[k] = false
+	}
+
+	blackSet := make(map[string]bool)
+	for k := range whiteSet {
+		blackSet[k] = false
+	}
+
+	for len(whiteSet) != 0 {
+		var current string
+
+		for k := range whiteSet {
+			current = k
+			break
+		}
+
+		if g.dfs(current, whiteSet, graySet, blackSet, stopWords) {
+			return false
+		}
+
 	}
 
 	return true
 }
 
-func (g *Graph) dfs(k string, stopWords map[string]bool) {
-	v, ok := g.vertices[k]
+func (g *Graph) dfs(current string, whiteSet map[string]bool, graySet map[string]bool, blackSet map[string]bool, stopWords map[string]bool) bool {
+	// move vertex from whiteSet to graySet
+	graySet[current] = true
+	delete(whiteSet, current)
+
+	vert, ok := g.vertices[current]
 	if ok {
-		b, ok := stopWords[k]
+		stopBool, ok := stopWords[current]
 		if ok {
-			if !b {
-				for _, u := range v.inList {
-					g.dfs(u.key, stopWords)
-				}
-			}
-		}
-	}
-}
+			if !stopBool {
+				for _, v := range vert.inList {
+					neighbor := v.key
 
-/* too slow! naive approach find better algo. */
-func (g *Graph) verify2(delNodes []string, freeWords []string) bool {
-	stopWords := make(map[string]bool)
-	visited := make(map[string]bool)
-
-	for _, v := range g.vertices {
-		stopWords[v.key] = false
-	}
-	for _, k := range delNodes {
-		stopWords[k] = true
-	}
-	for _, k := range freeWords {
-		stopWords[k] = true
-	}
-
-	for _, v := range g.vertices {
-		visited[v.key] = false
-	}
-
-	for k, b := range stopWords {
-		if !b {
-
-			visitedCpy := make(map[string]bool)
-
-			for key, val := range visited {
-				visitedCpy[key] = val
-			}
-
-			if !g.dfs2(k, stopWords, visitedCpy) {
-				return false
-			}
-		}
-	}
-
-	return true
-}
-
-func (g *Graph) dfs2(k string, stopWords map[string]bool, visited map[string]bool) bool {
-	v, ok := g.vertices[k]
-	if ok {
-		b, ok := visited[k]
-		if ok {
-			if b {
-				return false
-			}
-
-			visited[k] = true
-		}
-
-		b, ok = stopWords[k]
-		if ok {
-			if !b {
-				for _, u := range v.inList {
-
-					visitedCpy := make(map[string]bool)
-
-					for key, val := range visited {
-						visitedCpy[key] = val
+					bsBool, ok := blackSet[neighbor]
+					if ok {
+						if bsBool {
+							continue
+						}
 					}
 
-					if !g.dfs2(u.key, stopWords, visitedCpy) {
-						return false
+					gsBool, ok := graySet[neighbor]
+					if ok {
+						if gsBool {
+							return true
+						}
+					}
+
+					if g.dfs(neighbor, whiteSet, graySet, blackSet, stopWords) {
+						return true
 					}
 				}
 			}
 		}
 	}
 
-	return true
+	// move vertex from graySet to blackSet
+	graySet[current] = false
+	blackSet[current] = true
+
+	return false
 }
 
 /* Mod Cover Functions */
