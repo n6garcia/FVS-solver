@@ -168,6 +168,7 @@ func (g *Graph) Size() int {
 
 /* verify Functions */
 
+/* doesn't return false! on false, runs out of memory! */
 func (g *Graph) verify(delNodes []string, freeWords []string) bool {
 	stopWords := make(map[string]bool)
 
@@ -204,7 +205,7 @@ func (g *Graph) dfs(k string, stopWords map[string]bool) {
 	}
 }
 
-/* too slow! */
+/* too slow! naive approach find better algo. */
 func (g *Graph) verify2(delNodes []string, freeWords []string) bool {
 	stopWords := make(map[string]bool)
 	visited := make(map[string]bool)
