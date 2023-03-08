@@ -169,7 +169,7 @@ func (g *Graph) Size() int {
 /* verify Functions */
 
 func (g *Graph) verify(delNodes []string, freeWords []string) bool {
-	fmt.Println("verifying...")
+	//fmt.Println("verifying...")
 
 	stopWords := make(map[string]bool)
 	for _, v := range g.vertices {
@@ -256,6 +256,54 @@ func (g *Graph) dfs(current string, whiteSet map[string]bool, graySet map[string
 	blackSet[current] = true
 
 	return false
+}
+
+/* Brute Force Functions*/
+
+func (g *Graph) bruteForce(listFree []string) []string {
+	fmt.Println("brute forcing optimal solution...")
+
+	undefined = listFree
+
+	g.firstPop()
+
+	var fullSet []string
+
+	for k := range tGraph.vertices {
+		fullSet = append(fullSet, k)
+	}
+
+	return g.allSubsets(fullSet)
+}
+
+var undefined []string
+var opt []string
+
+func (g *Graph) allSubsets(fullSet []string) []string {
+	var subset []string
+	g.subsetHelper(fullSet, subset, 0)
+
+	return opt
+}
+
+func (g *Graph) subsetHelper(fullSet []string, subset []string, i int) {
+	if i == len(g.vertices) || len(subset) == 1 {
+		fmt.Println(subset)
+		if len(opt) == 0 {
+			if g.verify(subset, undefined) {
+				opt = subset
+			}
+		} else if len(subset) < len(opt) {
+			if g.verify(subset, undefined) {
+				opt = subset
+			}
+		}
+	} else {
+		g.subsetHelper(fullSet, subset, i+1)
+
+		subset = append(subset, fullSet[i])
+		g.subsetHelper(fullSet, subset, i+1)
+	}
 }
 
 /* Mod Cover Functions */

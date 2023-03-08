@@ -101,7 +101,15 @@ func handleServer() {
 	log.Fatal(http.ListenAndServe(":3001", nil))
 }
 
+func doStuff(s1 *[]string) {
+	*s1 = append(*s1, "hello!")
+}
+
 func main() {
+
+	var s1 *[]string = new([]string)
+	doStuff(s1)
+	fmt.Println(*s1)
 
 	/* set-up dictionary */
 
@@ -146,9 +154,7 @@ func main() {
 		fmt.Println("\ntime elapsed : ", elapsed)
 	*/
 
-	/* verify sol. (graph) */
-
-	delNodes = getNodes()
+	/* Brute Force Solution */
 
 	tGraph = &Graph{vertices: make(map[string]*Vertex)}
 
@@ -158,13 +164,37 @@ func main() {
 
 	start = time.Now()
 
-	verified := tGraph.verify(delNodes, listFree)
+	delNodes = tGraph.bruteForce(listFree)
 
-	fmt.Println("verified: ", verified)
+	write(delNodes, "bruteForce.json")
+
+	fmt.Println("nodes removed: ", len(delNodes))
 
 	t = time.Now()
 	elapsed = t.Sub(start)
 	fmt.Println("\ntime elapsed : ", elapsed)
+
+	/* verify sol. (graph) */
+
+	/*
+		delNodes = getNodes()
+
+		tGraph = &Graph{vertices: make(map[string]*Vertex)}
+
+		tGraph.AddData(dict)
+
+		listFree := tGraph.top()
+
+		start = time.Now()
+
+		verified := tGraph.verify(delNodes, listFree)
+
+		fmt.Println("verified: ", verified)
+
+		t = time.Now()
+		elapsed = t.Sub(start)
+		fmt.Println("\ntime elapsed : ", elapsed)
+	*/
 
 	/* verify sol. (dictionary) 2hr Runtime!! */
 
