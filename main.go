@@ -166,7 +166,7 @@ func main() {
 	elapsed = t.Sub(start)
 	fmt.Println("\ntime elapsed : ", elapsed)
 
-	/* verify sol. (dictionary) */
+	/* verify sol. (dictionary) 2hr Runtime!! */
 
 	/*
 		start = time.Now()
@@ -202,6 +202,8 @@ func main() {
 		tGraph = &Graph{vertices: make(map[string]*Vertex)}
 		tGraph.AddData(dict)
 
+		fmt.Println("exporting graph...")
+
 		var export expGraph
 
 		for _, vert := range tGraph.vertices {
@@ -210,9 +212,14 @@ func main() {
 			export.Nodes = append(export.Nodes, n)
 
 			for _, out := range vert.outList {
-				l := link{vert.key, out.key}
+				var l link
 
-				export.Links = append(export.Links, l)
+				if out.key != "" {
+					l = link{vert.key, out.key}
+
+					export.Links = append(export.Links, l)
+				}
+
 			}
 
 		}
@@ -228,7 +235,6 @@ func main() {
 			}
 		}
 	*/
-
 	/* Export Graph CSV*/
 
 	/*
