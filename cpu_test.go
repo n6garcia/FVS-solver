@@ -26,7 +26,7 @@ func BenchmarkVerify(b *testing.B) {
 	tGraph = &Graph{vertices: make(map[string]*Vertex), pqMap: make(map[string]*Item)}
 
 	tGraph.AddData(dict)
-	tGraph.initPQ()
+	tGraph.pqInit()
 
 	listFree := tGraph.top()
 

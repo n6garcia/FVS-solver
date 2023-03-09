@@ -101,15 +101,13 @@ func handleServer() {
 	log.Fatal(http.ListenAndServe(":3001", nil))
 }
 
-func doStuff(s1 *[]string) {
-	*s1 = append(*s1, "hello!")
-}
-
 func main() {
 
-	var s1 *[]string = new([]string)
-	doStuff(s1)
-	fmt.Println(*s1)
+	s1 := []string{"a", "b"}
+	s2 := s1
+
+	s2 = append(s2, "c")
+	fmt.Println(s1)
 
 	/* set-up dictionary */
 
@@ -156,19 +154,43 @@ func main() {
 
 	/* Brute Force Solution */
 
+	/*
+		tGraph = &Graph{vertices: make(map[string]*Vertex)}
+
+		tGraph.AddData(dict)
+
+		listFree := tGraph.top()
+
+		start = time.Now()
+
+		delNodes = tGraph.bruteForce(listFree)
+
+		write(delNodes, "bruteForce.json")
+
+		fmt.Println("nodes removed: ", len(delNodes))
+
+		t = time.Now()
+		elapsed = t.Sub(start)
+		fmt.Println("\ntime elapsed : ", elapsed)
+	*/
+
+	/* Cull Solution */
+
 	tGraph = &Graph{vertices: make(map[string]*Vertex)}
 
 	tGraph.AddData(dict)
 
 	listFree := tGraph.top()
 
+	delNodes = getNodes()
+
 	start = time.Now()
 
-	delNodes = tGraph.bruteForce(listFree)
+	cullNodes := tGraph.cullSol(delNodes, listFree)
 
-	write(delNodes, "bruteForce.json")
+	write(cullNodes, "cullNodes.json")
 
-	fmt.Println("nodes removed: ", len(delNodes))
+	fmt.Println("nodes removed: ", len(cullNodes))
 
 	t = time.Now()
 	elapsed = t.Sub(start)

@@ -258,8 +258,48 @@ func (g *Graph) dfs(current string, whiteSet map[string]bool, graySet map[string
 	return false
 }
 
+/* Cull Functions */
+
+func (g *Graph) cullSol(delNodes []string, listFree []string) []string {
+	count := 0
+	i := 0
+
+	subset := delNodes
+
+	for count != len(delNodes) {
+		b, s := g.cullHelper(subset, listFree, i)
+		if b {
+			subset = s
+		} else {
+			i += 1
+		}
+		count += 1
+	}
+
+	return subset
+
+}
+
+func (g *Graph) cullHelper(delNodes []string, listFree []string, i int) (bool, []string) {
+	subset := delNodes
+	subset = RemoveIndex(subset, i)
+
+	fmt.Println(len(subset))
+
+	if g.verify(subset, listFree) {
+		return true, subset
+	} else {
+		return false, delNodes
+	}
+}
+
+func RemoveIndex(s []string, index int) []string {
+	return append(s[:index], s[index+1:]...)
+}
+
 /* Brute Force Functions*/
 
+/* overflows! */
 func (g *Graph) bruteForce(listFree []string) []string {
 	fmt.Println("brute forcing optimal solution...")
 
@@ -287,7 +327,11 @@ func (g *Graph) allSubsets(fullSet []string) []string {
 }
 
 func (g *Graph) subsetHelper(fullSet []string, subset []string, i int) {
-	if i == len(g.vertices) || len(subset) == 1 {
+	k := 1
+
+	if i == len(g.vertices) && len(subset) != k {
+		return
+	} else if i == len(g.vertices) || len(subset) == k {
 		fmt.Println(subset)
 		if len(opt) == 0 {
 			if g.verify(subset, undefined) {
@@ -299,10 +343,12 @@ func (g *Graph) subsetHelper(fullSet []string, subset []string, i int) {
 			}
 		}
 	} else {
-		g.subsetHelper(fullSet, subset, i+1)
+		if len(opt) == 0 {
+			g.subsetHelper(fullSet, subset, i+1)
 
-		subset = append(subset, fullSet[i])
-		g.subsetHelper(fullSet, subset, i+1)
+			subset = append(subset, fullSet[i])
+			g.subsetHelper(fullSet, subset, i+1)
+		}
 	}
 }
 
