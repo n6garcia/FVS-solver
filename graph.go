@@ -264,27 +264,28 @@ func (g *Graph) cullSol(delNodes []string, listFree []string) []string {
 	count := 0
 	i := 0
 
-	subset := delNodes
+	length := len(delNodes)
 
-	for count != len(delNodes) {
-		b, s := g.cullHelper(subset, listFree, i)
+	for count != length {
+
+		b, s := g.cullHelper(delNodes, listFree, i)
 		if b {
-			subset = s
+			delNodes = s
 		} else {
 			i += 1
 		}
 		count += 1
+
 	}
 
-	return subset
+	return delNodes
 
 }
 
 func (g *Graph) cullHelper(delNodes []string, listFree []string, i int) (bool, []string) {
-	subset := delNodes
+	var subset []string = make([]string, len(delNodes))
+	copy(subset, delNodes)
 	subset = RemoveIndex(subset, i)
-
-	fmt.Println(len(subset))
 
 	if g.verify(subset, listFree) {
 		return true, subset

@@ -28,8 +28,8 @@ func write(li []string, fn string) {
 	}
 }
 
-func getNodes() []string {
-	file, err := os.Open("data/delNodes.json")
+func getNodes(fn string) []string {
+	file, err := os.Open("data/" + fn)
 	if err != nil {
 		fmt.Println("error loading json")
 		return []string{}
@@ -102,12 +102,6 @@ func handleServer() {
 }
 
 func main() {
-
-	s1 := []string{"a", "b"}
-	s2 := s1
-
-	s2 = append(s2, "c")
-	fmt.Println(s1)
 
 	/* set-up dictionary */
 
@@ -182,7 +176,7 @@ func main() {
 
 	listFree := tGraph.top()
 
-	delNodes = getNodes()
+	delNodes = getNodes("delNodes.json")
 
 	start = time.Now()
 
@@ -199,7 +193,7 @@ func main() {
 	/* verify sol. (graph) */
 
 	/*
-		delNodes = getNodes()
+		delNodes = getNodes("modCover.json")
 
 		tGraph = &Graph{vertices: make(map[string]*Vertex)}
 
@@ -223,7 +217,7 @@ func main() {
 	/*
 		start = time.Now()
 
-		delNodes = getNodes()
+		delNodes = getNodes("delNodes.json")
 
 		verified := dict.verify(delNodes)
 
