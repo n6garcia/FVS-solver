@@ -3,6 +3,7 @@ package main
 import (
 	"container/heap"
 	"fmt"
+	"math/rand"
 )
 
 type Graph struct {
@@ -298,58 +299,67 @@ func RemoveIndex(s []string, index int) []string {
 	return append(s[:index], s[index+1:]...)
 }
 
-/* Brute Force Functions*/
+/* Simulated Annealing Functions */
 
-/* overflows! */
-func (g *Graph) bruteForce(listFree []string) []string {
-	fmt.Println("brute forcing optimal solution...")
+func (g *Graph) simAnneal(initial []string, listFree []string) []string {
+	var T0 float32 = 100
+	var T float32 = T0
+	var t float32 = 0
 
-	undefined = listFree
+	// current <-- problem.INIITAL
+	var current []string = make([]string, len(initial))
+	copy(current, initial)
 
-	g.firstPop()
-
-	var fullSet []string
-
-	for k := range tGraph.vertices {
-		fullSet = append(fullSet, k)
+	var currMap map[string]bool = make(map[string]bool)
+	for _, v := range g.vertices {
+		currMap[v.key] = false
+	}
+	for _, k := range current {
+		currMap[k] = true
 	}
 
-	return g.allSubsets(fullSet)
-}
+	// for t = 1 to inf do
+	for {
+		t += 1
 
-var undefined []string
-var opt []string
+		// T <-- schedule(t)
+		T = T0 - (t * 0.1)
 
-func (g *Graph) allSubsets(fullSet []string) []string {
-	var subset []string
-	g.subsetHelper(fullSet, subset, 0)
-
-	return opt
-}
-
-func (g *Graph) subsetHelper(fullSet []string, subset []string, i int) {
-	k := 1
-
-	if i == len(g.vertices) && len(subset) != k {
-		return
-	} else if i == len(g.vertices) || len(subset) == k {
-		fmt.Println(subset)
-		if len(opt) == 0 {
-			if g.verify(subset, undefined) {
-				opt = subset
-			}
-		} else if len(subset) < len(opt) {
-			if g.verify(subset, undefined) {
-				opt = subset
-			}
+		// if T = 0 then return current
+		if T == 0 {
+			return current
 		}
-	} else {
-		if len(opt) == 0 {
-			g.subsetHelper(fullSet, subset, i+1)
 
-			subset = append(subset, fullSet[i])
-			g.subsetHelper(fullSet, subset, i+1)
+		// next <-- a randomly selected successor of current
+
+		for {
+			var next []string = make([]string, len(current))
+			copy(next, current)
+
+			var nextRem string
+
+			rem := rand.Intn(1)
+
+			if rem != 0 {
+				nextIdx := rand.Intn(len(next))
+				nextRem = next[nextIdx]
+				RemoveIndex(next, nextIdx)
+				if g.verify(next, listFree) {
+					break
+				}
+
+			} else {
+
+			}
+			fmt.Println(nextRem)
 		}
+
+		// △E <-- VALUE(current) - VALUE(next)
+
+		// if △E > 0 then current <-- next
+
+		// else current <-- next only with prob. e^(-△E/T)
+
 	}
 }
 

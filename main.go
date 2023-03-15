@@ -146,7 +146,7 @@ func main() {
 		fmt.Println("\ntime elapsed : ", elapsed)
 	*/
 
-	/* Brute Force Solution */
+	/* Cull Solution */
 
 	/*
 		tGraph = &Graph{vertices: make(map[string]*Vertex)}
@@ -155,20 +155,22 @@ func main() {
 
 		listFree := tGraph.top()
 
+		delNodes = getNodes("delNodes.json")
+
 		start = time.Now()
 
-		delNodes = tGraph.bruteForce(listFree)
+		cullNodes := tGraph.cullSol(delNodes, listFree)
 
-		write(delNodes, "bruteForce.json")
+		write(cullNodes, "cullNodes.json")
 
-		fmt.Println("nodes removed: ", len(delNodes))
+		fmt.Println("nodes removed: ", len(cullNodes))
 
 		t = time.Now()
 		elapsed = t.Sub(start)
 		fmt.Println("\ntime elapsed : ", elapsed)
 	*/
 
-	/* Cull Solution */
+	/* Simulated Annealing */
 
 	tGraph = &Graph{vertices: make(map[string]*Vertex)}
 
@@ -176,15 +178,15 @@ func main() {
 
 	listFree := tGraph.top()
 
-	delNodes = getNodes("delNodes.json")
+	delNodes = getNodes("bestSol.json")
 
 	start = time.Now()
 
-	cullNodes := tGraph.cullSol(delNodes, listFree)
+	simNodes := tGraph.simAnneal(delNodes, listFree)
 
-	write(cullNodes, "cullNodes.json")
+	write(simNodes, "simNodes.json")
 
-	fmt.Println("nodes removed: ", len(cullNodes))
+	fmt.Println("nodes removed: ", len(simNodes))
 
 	t = time.Now()
 	elapsed = t.Sub(start)
@@ -193,7 +195,7 @@ func main() {
 	/* verify sol. (graph) */
 
 	/*
-		delNodes = getNodes("modCover.json")
+		delNodes = getNodes("bestSol.json")
 
 		tGraph = &Graph{vertices: make(map[string]*Vertex)}
 
@@ -281,6 +283,7 @@ func main() {
 			}
 		}
 	*/
+
 	/* Export Graph CSV*/
 
 	/*
@@ -317,5 +320,7 @@ func main() {
 
 	/* handle online service */
 
-	//handleServer()
+	/*
+		handleServer()
+	*/
 }
