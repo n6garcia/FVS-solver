@@ -3,6 +3,7 @@ package main
 import (
 	"container/heap"
 	"fmt"
+	"math"
 	"math/rand"
 )
 
@@ -262,6 +263,7 @@ func (g *Graph) dfs(current string, whiteSet map[string]bool, graySet map[string
 /* Cull Functions */
 
 func (g *Graph) cullSol(delNodes []string, listFree []string) []string {
+	fmt.Println("culling solution...")
 	count := 0
 	i := 0
 
@@ -302,9 +304,12 @@ func RemoveIndex(s []string, index int) []string {
 /* Simulated Annealing Functions */
 
 func (g *Graph) simAnneal(initial []string, listFree []string) []string {
-	var T0 float32 = 100
-	var T float32 = T0
-	var t float32 = 0
+	fmt.Println("simulating annealing...")
+
+	var T0 float64 = 5
+	var T float64 = T0
+	var t float64 = 0
+	var remCutoff = 5
 
 	// current <-- problem.INIITAL
 	var current []string = make([]string, len(initial))
@@ -318,12 +323,19 @@ func (g *Graph) simAnneal(initial []string, listFree []string) []string {
 		currMap[k] = true
 	}
 
+	var compliment []string
+	for k, v := range currMap {
+		if !v {
+			compliment = append(compliment, k)
+		}
+	}
+
 	// for t = 1 to inf do
 	for {
 		t += 1
 
 		// T <-- schedule(t)
-		T = T0 - (t * 0.1)
+		T = T0 - (t * 0.0001) // should run in about 100m!
 
 		// if T = 0 then return current
 		if T == 0 {
@@ -332,35 +344,76 @@ func (g *Graph) simAnneal(initial []string, listFree []string) []string {
 
 		// next <-- a randomly selected successor of current
 
+		var next []string
+		var nextKey string
+		var rem int
+
 		for {
-			var next []string = make([]string, len(current))
+
+			next = make([]string, len(current))
 			copy(next, current)
 
-			var nextRem string
+			rem = rand.Intn(remCutoff + 1)
 
-			rem := rand.Intn(1)
-
-			if rem != 0 {
+			if rem < remCutoff {
 				nextIdx := rand.Intn(len(next))
-				nextRem = next[nextIdx]
-				RemoveIndex(next, nextIdx)
+				nextKey = next[nextIdx]
+				next = RemoveIndex(next, nextIdx)
 				if g.verify(next, listFree) {
 					break
 				}
 
 			} else {
-
+				compIdx := rand.Intn(len(compliment))
+				nextKey = compliment[compIdx]
+				next = append(next, nextKey)
+				break
 			}
-			fmt.Println(nextRem)
 		}
 
 		// △E <-- VALUE(current) - VALUE(next)
 
-		// if △E > 0 then current <-- next
+		var E float64 = float64(len(current) - len(next))
+		//fmt.Println("E:", E, " curr:", len(current), " next:", len(next))
 
-		// else current <-- next only with prob. e^(-△E/T)
+		// if △E > 0 then current <-- next
+		if E > 0 {
+			current = next
+			if rem < remCutoff {
+				compliment = append(compliment, nextKey)
+			} else {
+				for i, k := range compliment {
+					if k == nextKey {
+						compliment = RemoveIndex(compliment, i)
+						break
+					}
+				}
+			}
+
+			// else current <-- next only with prob. e^(-△E/T)
+		} else {
+			prob := math.Exp(E / T)
+			//fmt.Println(E, " ", T, " ", prob)
+			sample := rand.Float64()
+
+			if sample <= prob {
+				current = next
+				if rem < remCutoff {
+					compliment = append(compliment, nextKey)
+				} else {
+					for i, k := range compliment {
+						if k == nextKey {
+							compliment = RemoveIndex(compliment, i)
+							break
+						}
+					}
+				}
+			}
+
+		}
 
 	}
+
 }
 
 /* Mod Cover Functions */

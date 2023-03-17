@@ -148,6 +148,28 @@ func main() {
 
 	/* Cull Solution */
 
+	tGraph = &Graph{vertices: make(map[string]*Vertex)}
+
+	tGraph.AddData(dict)
+
+	listFree := tGraph.top()
+
+	delNodes = getNodes("simNodes3.json")
+
+	start = time.Now()
+
+	cullNodes := tGraph.cullSol(delNodes, listFree)
+
+	write(cullNodes, "cullNodes.json")
+
+	fmt.Println("nodes removed: ", len(cullNodes))
+
+	t = time.Now()
+	elapsed = t.Sub(start)
+	fmt.Println("\ntime elapsed : ", elapsed)
+
+	/* Simulated Annealing */
+
 	/*
 		tGraph = &Graph{vertices: make(map[string]*Vertex)}
 
@@ -155,42 +177,20 @@ func main() {
 
 		listFree := tGraph.top()
 
-		delNodes = getNodes("delNodes.json")
+		delNodes = getNodes("simNodes2.json")
 
 		start = time.Now()
 
-		cullNodes := tGraph.cullSol(delNodes, listFree)
+		simNodes := tGraph.simAnneal(delNodes, listFree)
 
-		write(cullNodes, "cullNodes.json")
+		write(simNodes, "simNodes.json")
 
-		fmt.Println("nodes removed: ", len(cullNodes))
+		fmt.Println("nodes removed: ", len(simNodes))
 
 		t = time.Now()
 		elapsed = t.Sub(start)
 		fmt.Println("\ntime elapsed : ", elapsed)
 	*/
-
-	/* Simulated Annealing */
-
-	tGraph = &Graph{vertices: make(map[string]*Vertex)}
-
-	tGraph.AddData(dict)
-
-	listFree := tGraph.top()
-
-	delNodes = getNodes("bestSol.json")
-
-	start = time.Now()
-
-	simNodes := tGraph.simAnneal(delNodes, listFree)
-
-	write(simNodes, "simNodes.json")
-
-	fmt.Println("nodes removed: ", len(simNodes))
-
-	t = time.Now()
-	elapsed = t.Sub(start)
-	fmt.Println("\ntime elapsed : ", elapsed)
 
 	/* verify sol. (graph) */
 
