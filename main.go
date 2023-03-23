@@ -146,27 +146,63 @@ func main() {
 		fmt.Println("\ntime elapsed : ", elapsed)
 	*/
 
+	/* reconstruct word */
+
+	delNodes = getNodes("delNodes.json")
+
+	word := "john"
+
+	defn := dict.getDef(word)
+
+	var str string
+
+	for i, val := range defn {
+		if i == 0 {
+			str = str + val
+		} else {
+			str = str + " " + val
+		}
+	}
+
+	fmt.Println(str)
+
+	defn = dict.expandDef(delNodes, word)
+
+	str = ""
+
+	for i, val := range defn {
+		if i == 0 {
+			str = str + val
+		} else {
+			str = str + " " + val
+		}
+	}
+
+	fmt.Println(str)
+
 	/* Cull Solution */
 
-	tGraph = &Graph{vertices: make(map[string]*Vertex)}
+	/*
+		tGraph = &Graph{vertices: make(map[string]*Vertex)}
 
-	tGraph.AddData(dict)
+		tGraph.AddData(dict)
 
-	listFree := tGraph.top()
+		listFree := tGraph.top()
 
-	delNodes = getNodes("simNodes3.json")
+		delNodes = getNodes("simNodes3.json")
 
-	start = time.Now()
+		start = time.Now()
 
-	cullNodes := tGraph.cullSol(delNodes, listFree)
+		cullNodes := tGraph.cullSol(delNodes, listFree)
 
-	write(cullNodes, "cullNodes.json")
+		write(cullNodes, "cullNodes.json")
 
-	fmt.Println("nodes removed: ", len(cullNodes))
+		fmt.Println("nodes removed: ", len(cullNodes))
 
-	t = time.Now()
-	elapsed = t.Sub(start)
-	fmt.Println("\ntime elapsed : ", elapsed)
+		t = time.Now()
+		elapsed = t.Sub(start)
+		fmt.Println("\ntime elapsed : ", elapsed)
+	*/
 
 	/* Simulated Annealing */
 
@@ -321,6 +357,7 @@ func main() {
 	/* handle online service */
 
 	/*
+		delNodes = getNodes("bestSol.json")
 		handleServer()
 	*/
 }
