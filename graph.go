@@ -416,10 +416,10 @@ func (g *Graph) simAnneal(initial []string, listFree []string) []string {
 
 }
 
-/* Mod Cover Functions */
+/* FVS Functions */
 
-func (g *Graph) modCover() []string {
-	fmt.Println("performing mod cover...")
+func (g *Graph) FVS() []string {
+	fmt.Println("searching for FVS...")
 
 	g.firstPop()
 

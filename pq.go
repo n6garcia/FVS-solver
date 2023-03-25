@@ -45,7 +45,6 @@ func (pq *PriorityQueue) Pop() any {
 	return item
 }
 
-// Note: always CALL after clearLists
 // update modifies the priority and value of an Item in the queue.
 func (pq *PriorityQueue) update(item *Item, value *Vertex, priority int) {
 	item.value = value

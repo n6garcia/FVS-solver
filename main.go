@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -15,6 +16,50 @@ import (
 var delNodes []string
 var tGraph *Graph
 var dict *Dictionary
+
+func main() {
+
+	LoadDict()
+
+	reconstructWord("john")
+
+	//cullSolution()
+
+	//simulatedAnnealing()
+
+	//graphVerify()
+
+	//dictVerify()
+
+	//exportJson()
+
+	//exportCSV()
+
+	//handleServer()
+
+}
+
+func LoadDict() {
+	start := time.Now()
+
+	dict = &Dictionary{definitions: make(map[string]*Definition)}
+
+	for ch := 'A'; ch <= 'Z'; ch++ {
+		dict.loadData(string(ch) + ".json")
+	}
+
+	dict.PrintSize()
+
+	t := time.Now()
+	elapsed := t.Sub(start)
+	fmt.Println("\ntime elapsed : ", elapsed)
+
+	fmt.Println()
+}
+
+func LoadWNDict() {
+
+}
 
 func write(li []string, fn string) {
 	json, err := json.MarshalIndent(li, "", " ")
@@ -91,6 +136,8 @@ func newHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleServer() {
+	delNodes = getNodes("bestSol.json")
+
 	r := mux.NewRouter()
 
 	r.HandleFunc("/orig", origHandler).Methods("GET")
@@ -101,56 +148,8 @@ func handleServer() {
 	log.Fatal(http.ListenAndServe(":3001", nil))
 }
 
-func main() {
-
-	/* set-up dictionary */
-
-	start := time.Now()
-
-	dict = &Dictionary{definitions: make(map[string]*Definition)}
-
-	for ch := 'A'; ch <= 'Z'; ch++ {
-		dict.loadData(string(ch) + ".json")
-	}
-
-	dict.PrintSize()
-
-	t := time.Now()
-	elapsed := t.Sub(start)
-	fmt.Println("\ntime elapsed : ", elapsed)
-
-	fmt.Println()
-
-	/* set-up graph and solve */
-
-	/*
-		tGraph = &Graph{vertices: make(map[string]*Vertex), pqMap: make(map[string]*Item)}
-
-		tGraph.AddData(dict)
-		tGraph.pqInit()
-
-		listFree := tGraph.top()
-
-		write(listFree, "freeWords.json")
-
-		start = time.Now()
-
-		delNodes = tGraph.modCover()
-
-		write(delNodes, "delNodes.json")
-
-		fmt.Println("nodes removed: ", len(delNodes))
-
-		t = time.Now()
-		elapsed = t.Sub(start)
-		fmt.Println("\ntime elapsed : ", elapsed)
-	*/
-
-	/* reconstruct word */
-
+func reconstructWord(word string) {
 	delNodes = getNodes("delNodes.json")
-
-	word := "john"
 
 	defn := dict.getDef(word)
 
@@ -179,185 +178,189 @@ func main() {
 	}
 
 	fmt.Println(str)
+}
 
-	/* Cull Solution */
+func Solve() {
+	tGraph = &Graph{vertices: make(map[string]*Vertex), pqMap: make(map[string]*Item)}
 
-	/*
-		tGraph = &Graph{vertices: make(map[string]*Vertex)}
+	tGraph.AddData(dict)
+	tGraph.pqInit()
 
-		tGraph.AddData(dict)
+	listFree := tGraph.top()
 
-		listFree := tGraph.top()
+	write(listFree, "freeWords.json")
 
-		delNodes = getNodes("simNodes3.json")
+	start := time.Now()
 
-		start = time.Now()
+	delNodes = tGraph.FVS()
 
-		cullNodes := tGraph.cullSol(delNodes, listFree)
+	write(delNodes, "delNodes.json")
 
-		write(cullNodes, "cullNodes.json")
+	fmt.Println("nodes removed: ", len(delNodes))
 
-		fmt.Println("nodes removed: ", len(cullNodes))
+	t := time.Now()
+	elapsed := t.Sub(start)
+	fmt.Println("\ntime elapsed : ", elapsed)
+}
 
-		t = time.Now()
-		elapsed = t.Sub(start)
-		fmt.Println("\ntime elapsed : ", elapsed)
-	*/
+func cullSolution() {
+	tGraph = &Graph{vertices: make(map[string]*Vertex)}
 
-	/* Simulated Annealing */
+	tGraph.AddData(dict)
 
-	/*
-		tGraph = &Graph{vertices: make(map[string]*Vertex)}
+	listFree := tGraph.top()
 
-		tGraph.AddData(dict)
+	delNodes = getNodes("simNodes3.json")
 
-		listFree := tGraph.top()
+	start := time.Now()
 
-		delNodes = getNodes("simNodes2.json")
+	cullNodes := tGraph.cullSol(delNodes, listFree)
 
-		start = time.Now()
+	write(cullNodes, "cullNodes.json")
 
-		simNodes := tGraph.simAnneal(delNodes, listFree)
+	fmt.Println("nodes removed: ", len(cullNodes))
 
-		write(simNodes, "simNodes.json")
+	t := time.Now()
+	elapsed := t.Sub(start)
+	fmt.Println("\ntime elapsed : ", elapsed)
+}
 
-		fmt.Println("nodes removed: ", len(simNodes))
+func simulatedAnnealing() {
+	tGraph = &Graph{vertices: make(map[string]*Vertex)}
 
-		t = time.Now()
-		elapsed = t.Sub(start)
-		fmt.Println("\ntime elapsed : ", elapsed)
-	*/
+	tGraph.AddData(dict)
 
-	/* verify sol. (graph) */
+	listFree := tGraph.top()
 
-	/*
-		delNodes = getNodes("bestSol.json")
+	delNodes = getNodes("simNodes2.json")
 
-		tGraph = &Graph{vertices: make(map[string]*Vertex)}
+	start := time.Now()
 
-		tGraph.AddData(dict)
+	simNodes := tGraph.simAnneal(delNodes, listFree)
 
-		listFree := tGraph.top()
+	write(simNodes, "simNodes.json")
 
-		start = time.Now()
+	fmt.Println("nodes removed: ", len(simNodes))
 
-		verified := tGraph.verify(delNodes, listFree)
+	t := time.Now()
+	elapsed := t.Sub(start)
+	fmt.Println("\ntime elapsed : ", elapsed)
+}
 
-		fmt.Println("verified: ", verified)
+func graphVerify() {
+	delNodes = getNodes("bestSol.json")
 
-		t = time.Now()
-		elapsed = t.Sub(start)
-		fmt.Println("\ntime elapsed : ", elapsed)
-	*/
+	tGraph = &Graph{vertices: make(map[string]*Vertex)}
 
-	/* verify sol. (dictionary) 2hr Runtime!! */
+	tGraph.AddData(dict)
 
-	/*
-		start = time.Now()
+	listFree := tGraph.top()
 
-		delNodes = getNodes("delNodes.json")
+	start := time.Now()
 
-		verified := dict.verify(delNodes)
+	verified := tGraph.verify(delNodes, listFree)
 
-		fmt.Println("verified: ", verified)
+	fmt.Println("verified: ", verified)
 
-		t = time.Now()
-		elapsed = t.Sub(start)
-		fmt.Println("\ntime elapsed : ", elapsed)
-	*/
+	t := time.Now()
+	elapsed := t.Sub(start)
+	fmt.Println("\ntime elapsed : ", elapsed)
+}
 
-	/* Export Graph Json*/
+func dictVerify() {
+	start := time.Now()
 
-	/*
-		type node struct {
-			Name string `json:"name"`
-		}
+	delNodes = getNodes("delNodes.json")
 
-		type link struct {
-			Source string `json:"source"`
-			Target string `json:"target"`
-		}
+	verified := dict.verify(delNodes)
 
-		type expGraph struct {
-			Nodes []node `json:"nodes"`
-			Links []link `json:"links"`
-		}
+	fmt.Println("verified: ", verified)
 
-		tGraph = &Graph{vertices: make(map[string]*Vertex)}
-		tGraph.AddData(dict)
+	t := time.Now()
+	elapsed := t.Sub(start)
+	fmt.Println("\ntime elapsed : ", elapsed)
+}
 
-		fmt.Println("exporting graph...")
+func exportJson() {
+	type node struct {
+		Name string `json:"name"`
+	}
 
-		var export expGraph
+	type link struct {
+		Source string `json:"source"`
+		Target string `json:"target"`
+	}
 
-		for _, vert := range tGraph.vertices {
-			n := node{vert.key}
+	type expGraph struct {
+		Nodes []node `json:"nodes"`
+		Links []link `json:"links"`
+	}
 
-			export.Nodes = append(export.Nodes, n)
+	tGraph = &Graph{vertices: make(map[string]*Vertex)}
+	tGraph.AddData(dict)
 
-			for _, out := range vert.outList {
-				var l link
+	fmt.Println("exporting graph...")
 
-				if out.key != "" {
-					l = link{vert.key, out.key}
+	var export expGraph
 
-					export.Links = append(export.Links, l)
-				}
+	for _, vert := range tGraph.vertices {
+		n := node{vert.key}
 
+		export.Nodes = append(export.Nodes, n)
+
+		for _, out := range vert.outList {
+			var l link
+
+			if out.key != "" {
+				l = link{vert.key, out.key}
+
+				export.Links = append(export.Links, l)
 			}
 
 		}
 
-		b, err := json.MarshalIndent(export, "", "")
+	}
 
+	b, err := json.MarshalIndent(export, "", "")
+
+	if err != nil {
+		fmt.Printf("Error: %s", err.Error())
+	} else {
+		err = os.WriteFile("data/expGraph.json", b, 0644)
 		if err != nil {
-			fmt.Printf("Error: %s", err.Error())
-		} else {
-			err = os.WriteFile("data/expGraph.json", b, 0644)
-			if err != nil {
-				log.Fatal(err)
-			}
+			log.Fatal(err)
 		}
-	*/
+	}
+}
 
-	/* Export Graph CSV*/
+func exportCSV() {
+	rows := [][]string{
+		{"source", "target"},
+	}
 
-	/*
-		rows := [][]string{
-			{"source", "target"},
-		}
+	tGraph = &Graph{vertices: make(map[string]*Vertex)}
+	tGraph.AddData(dict)
 
-		tGraph = &Graph{vertices: make(map[string]*Vertex)}
-		tGraph.AddData(dict)
+	for _, vert := range tGraph.vertices {
 
-		for _, vert := range tGraph.vertices {
-
-			for _, out := range vert.outList {
-				rows = append(rows, []string{vert.key, out.key})
-			}
-
+		for _, out := range vert.outList {
+			rows = append(rows, []string{vert.key, out.key})
 		}
 
-		csvfile, err := os.Create("data/expCSV.csv")
+	}
 
-		if err != nil {
-			log.Fatalf("Failed to create file, : %s", err)
-		}
+	csvfile, err := os.Create("data/expCSV.csv")
 
-		cswriter := csv.NewWriter(csvfile)
+	if err != nil {
+		log.Fatalf("Failed to create file, : %s", err)
+	}
 
-		for _, row := range rows {
-			_ = cswriter.Write(row)
-		}
+	cswriter := csv.NewWriter(csvfile)
 
-		cswriter.Flush()
-		csvfile.Close()
-	*/
+	for _, row := range rows {
+		_ = cswriter.Write(row)
+	}
 
-	/* handle online service */
-
-	/*
-		delNodes = getNodes("bestSol.json")
-		handleServer()
-	*/
+	cswriter.Flush()
+	csvfile.Close()
 }
