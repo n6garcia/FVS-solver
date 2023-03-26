@@ -1,11 +1,20 @@
 package main
 
 import (
-	"bufio"
 	"encoding/json"
 	"fmt"
 	"os"
 )
+
+type dictInterface interface {
+	Print()
+	PrintSize()
+	loadData(string)
+	AddData(*Graph)
+	getDef(string) string
+	expandDef([]string, string) string
+	verify([]string) bool
+}
 
 type Dictionary struct {
 	definitions map[string]*Definition
@@ -35,25 +44,10 @@ func (d *Dictionary) addDef(n string, w []string) {
 }
 
 func (d *Dictionary) loadData(fn string) {
-	file, err := os.Open("wrangle/cleaned/" + fn)
+	bytes, err := os.ReadFile("wrangle/cleaned/" + fn) // just pass the file name
 	if err != nil {
-		fmt.Println("error loading json")
-		return
+		fmt.Print(err)
 	}
-	defer file.Close()
-
-	fmt.Println("file: ", fn)
-
-	scanner := bufio.NewScanner(file)
-
-	var txt string
-
-	for scanner.Scan() {
-		line := scanner.Text()
-		txt = txt + line
-	}
-
-	bytes := []byte(txt)
 
 	fmt.Println("isValid: ", json.Valid(bytes))
 
@@ -70,12 +64,31 @@ func (d *Dictionary) loadData(fn string) {
 	}
 }
 
-func (d *Dictionary) expandDef(delNodes []string, k string) []string {
+// Transfers Data in Dictionary to Graph
+func (d *Dictionary) AddData(g *Graph) {
+	fmt.Println("adding data to graph...")
+
+	for _, v := range d.definitions {
+		g.AddVertex(v.name)
+		for _, word := range v.words {
+			g.AddVertex(word)
+		}
+	}
+
+	for _, v := range d.definitions {
+		for _, word := range v.words {
+			// word defines name
+			g.AddEdge(word, v.name)
+		}
+	}
+}
+
+func (d *Dictionary) expandDef(delNodes []string, k string) string {
 	wordMap := make(map[string]bool)
 	var defn []string
 
 	if k == "" {
-		return defn
+		return ""
 	}
 
 	for _, val := range d.definitions {
@@ -98,7 +111,17 @@ func (d *Dictionary) expandDef(delNodes []string, k string) []string {
 		}
 	}
 
-	return newDefn
+	var str string
+
+	for i, val := range newDefn {
+		if i == 0 {
+			str = str + val
+		} else {
+			str = str + " " + val
+		}
+	}
+
+	return str
 }
 
 func (d *Dictionary) recursiveSearch(wordMap map[string]bool, k string) []string {
@@ -131,15 +154,26 @@ func (d *Dictionary) findDef(k string) []string {
 }
 
 // for use in main()
-func (d *Dictionary) getDef(k string) []string {
+func (d *Dictionary) getDef(k string) string {
 	if k == "" {
-		return nil
+		return ""
 	}
 	defn, ok := d.definitions[k]
 	if ok {
-		return defn.words
+
+		var str string
+
+		for i, val := range defn.words {
+			if i == 0 {
+				str = str + val
+			} else {
+				str = str + " " + val
+			}
+		}
+
+		return str
 	} else {
-		return nil
+		return ""
 	}
 }
 

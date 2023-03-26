@@ -21,25 +21,6 @@ type Vertex struct {
 
 /* Graph Population Functions */
 
-// Transfers Data in Dictionary to Graph
-func (g *Graph) AddData(d *Dictionary) {
-	fmt.Println("adding data to graph...")
-
-	for _, v := range d.definitions {
-		g.AddVertex(v.name)
-		for _, word := range v.words {
-			g.AddVertex(word)
-		}
-	}
-
-	for _, v := range d.definitions {
-		for _, word := range v.words {
-			// word defines name
-			g.AddEdge(word, v.name)
-		}
-	}
-}
-
 // adds vertex to graph with key k, will not add duplicates
 func (g *Graph) AddVertex(k string) {
 	if !g.containsVertex(k) {
