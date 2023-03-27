@@ -19,17 +19,23 @@ var dict dictInterface
 
 func main() {
 
-	//LoadWNDict()
-	LoadDict()
+	LoadWNDict()
+	//LoadDict()
 
 	//Solve()
 
-	reconstructWord("happy", "old/delNodes.json")
+	// BUG ON "reconstructWord("happy", "old/bestSol.json")"
+	reconstructWord("old", "wn/delNodes.json")
 
+	// MIGHT GIVE BUGGY SOLUTIONS!
 	//simulatedAnnealing("wn/delNodes.json")
 
+	//cullSolution("old/bestSolve.json")
+
+	// QUICK BUT BUGGY?
 	//graphVerify("old/bestSol.json")
 
+	// SLOW BUT TRUTHFUL
 	//dictVerify("wn/delNodes.json")
 
 	//exportJson()

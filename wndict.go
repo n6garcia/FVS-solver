@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strconv"
+	"strings"
 )
 
 type WNdict struct {
@@ -98,21 +100,93 @@ func (wn *WNdict) AddData(g *Graph) {
 }
 
 func (wn *WNdict) expandDef(delNodes []string, k string) string {
-	return ""
+	wordMap := make(map[string]bool)
+
+	if k == "" {
+		return ""
+	}
+
+	for _, val := range wn.IDMappings {
+		wordMap[val.name] = false
+		for _, word := range val.regexWords {
+			wordMap[word] = false
+		}
+	}
+
+	for _, val := range delNodes {
+		wordMap[val] = true
+	}
+
+	defnArr := wn.findDefArr(k)
+
+	var out string = ""
+
+	for idx, defn := range defnArr {
+		var str string = defn.regexDef
+		for i, val := range defn.regexWords {
+			expand := wn.recursiveSearch(wordMap, defn.mappings[i], val)
+			if len(expand) != 0 {
+				str = strings.Replace(str, "%s", expand, 1)
+			} else {
+				str = strings.Replace(str, "%s", val, 1)
+			}
+		}
+		out = out + strconv.Itoa(idx+1) + ". " + str + "\n"
+	}
+
+	return out
 }
 
-func (wn *WNdict) recursiveSearch(wordMap map[string]bool, k string) []string {
-	return []string{}
+func (wn *WNdict) recursiveSearch(wordMap map[string]bool, ID string, k string) string {
+	val, ok := wordMap[k]
+	if !ok || val {
+		return ""
+	} else {
+		defn := wn.findDef(ID)
+		var str string = defn.regexDef
+		for i, val := range defn.regexWords {
+			expand := wn.recursiveSearch(wordMap, defn.mappings[i], val)
+			if len(expand) != 0 {
+				str = strings.Replace(str, "%s", expand, 1)
+			} else {
+				str = strings.Replace(str, "%s", val, 1)
+			}
+		}
+		return str
+	}
+}
+
+func (wn *WNdict) findDef(ID string) *WNdef {
+	defn, ok := wn.IDMappings[ID]
+	if ok {
+		return defn
+	} else {
+		return &WNdef{}
+	}
 }
 
 // for use in recursiveSearch
-func (wn *WNdict) findDef(k string) []string {
-	return []string{}
+func (wn *WNdict) findDefArr(k string) []*WNdef {
+	defn, ok := wn.definitions[k]
+	if ok {
+		return defn
+	} else {
+		return []*WNdef{}
+	}
 }
 
 // for use in main()
 func (wn *WNdict) getDef(k string) string {
-	return ""
+	var str string = ""
+
+	val, ok := wn.definitions[k]
+	if ok {
+		for idx, def := range val {
+			str = str + strconv.Itoa(idx+1) + ". " + def.origDef + "\n"
+		}
+	}
+
+	return str
 }
 
 // very slow implementation!

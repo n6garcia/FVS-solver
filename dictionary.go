@@ -93,6 +93,9 @@ func (d *Dictionary) expandDef(delNodes []string, k string) string {
 
 	for _, val := range d.definitions {
 		wordMap[val.name] = false
+		for _, word := range val.words {
+			wordMap[word] = false
+		}
 	}
 
 	for _, val := range delNodes {
