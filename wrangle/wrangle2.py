@@ -22,7 +22,7 @@ for word in allWords:
 
     for i in range(len(tkns)):
         tkn = tkns[i]
-        c = lesk(tkns, tkn)
+        c = lesk(origDef, tkn)
         if c is None:
             continue
         elif '_' in c.name().split('.')[0]:

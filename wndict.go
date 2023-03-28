@@ -93,7 +93,9 @@ func (wn *WNdict) AddData(g *Graph) {
 		for _, v := range li {
 			for _, word := range v.regexWords {
 				// word defines name
-				g.AddEdge(word, v.name)
+				if word != v.name {
+					g.AddEdge(word, v.name)
+				}
 			}
 		}
 	}
@@ -124,6 +126,10 @@ func (wn *WNdict) expandDef(delNodes []string, k string) string {
 	for idx, defn := range defnArr {
 		var str string = defn.regexDef
 		for i, val := range defn.regexWords {
+			if k == val {
+				str = strings.Replace(str, "%s", val, 1)
+				continue
+			}
 			expand := wn.recursiveSearch(wordMap, defn.mappings[i], val)
 			if len(expand) != 0 {
 				str = strings.Replace(str, "%s", expand, 1)
@@ -145,6 +151,10 @@ func (wn *WNdict) recursiveSearch(wordMap map[string]bool, ID string, k string) 
 		defn := wn.findDef(ID)
 		var str string = defn.regexDef
 		for i, val := range defn.regexWords {
+			if k == val {
+				str = strings.Replace(str, "%s", val, 1)
+				continue
+			}
 			expand := wn.recursiveSearch(wordMap, defn.mappings[i], val)
 			if len(expand) != 0 {
 				str = strings.Replace(str, "%s", expand, 1)
@@ -189,12 +199,16 @@ func (wn *WNdict) getDef(k string) string {
 	return str
 }
 
-// very slow implementation!
-// implementation takes about 1hr40m on my computer to run (average hardware)
+// very slow implementation! BUT TRUTHFUL!
 func (wn *WNdict) verify(delNodes []string) bool {
 
 	fmt.Println("verifying...")
 
-	return false
+	for _, defnArr := range wn.definitions {
+		// expands all synsets anyway!
+		wn.expandDef(delNodes, defnArr[0].name)
+	}
+
+	return true
 
 }

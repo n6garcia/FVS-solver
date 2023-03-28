@@ -19,23 +19,19 @@ var dict dictInterface
 
 func main() {
 
-	LoadWNDict()
 	//LoadDict()
+	LoadWNDict()
 
-	//Solve()
+	//Solve("wn/")
 
-	// BUG ON "reconstructWord("happy", "old/bestSol.json")"
-	reconstructWord("old", "wn/delNodes.json")
+	//reconstructWord("happy", "wn/delNodes.json")
 
-	// MIGHT GIVE BUGGY SOLUTIONS!
 	//simulatedAnnealing("wn/delNodes.json")
 
 	//cullSolution("old/bestSolve.json")
 
-	// QUICK BUT BUGGY?
-	//graphVerify("old/bestSol.json")
+	graphVerify("wn/delNodes.json")
 
-	// SLOW BUT TRUTHFUL
 	//dictVerify("wn/delNodes.json")
 
 	//exportJson()
@@ -85,7 +81,7 @@ func write(li []string, fn string) {
 	if err != nil {
 		fmt.Printf("Error: %s", err.Error())
 	} else {
-		err = os.WriteFile("data/"+fn, json, 0644)
+		err = os.WriteFile(fn, json, 0644)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -159,7 +155,7 @@ func reconstructWord(word string, fn string) {
 	fmt.Println(defn)
 }
 
-func Solve() {
+func Solve(folder string) {
 	tGraph = &Graph{vertices: make(map[string]*Vertex), pqMap: make(map[string]*Item)}
 
 	dict.AddData(tGraph)
@@ -167,13 +163,13 @@ func Solve() {
 
 	listFree := tGraph.top()
 
-	write(listFree, "freeWords.json")
+	write(listFree, folder+"undefWords.json")
 
 	start := time.Now()
 
 	delNodes = tGraph.FVS()
 
-	write(delNodes, "delNodes.json")
+	write(delNodes, folder+"delNodes.json")
 
 	fmt.Println("nodes removed: ", len(delNodes))
 

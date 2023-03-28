@@ -78,9 +78,12 @@ func (d *Dictionary) AddData(g *Graph) {
 	for _, v := range d.definitions {
 		for _, word := range v.words {
 			// word defines name
-			g.AddEdge(word, v.name)
+			if word != v.name {
+				g.AddEdge(word, v.name)
+			}
 		}
 	}
+
 }
 
 func (d *Dictionary) expandDef(delNodes []string, k string) string {
@@ -106,6 +109,11 @@ func (d *Dictionary) expandDef(delNodes []string, k string) string {
 
 	var newDefn []string = []string{}
 	for _, val := range defn {
+		// get rid of self loops
+		if k == val {
+			newDefn = append(newDefn, val)
+			continue
+		}
 		expand := d.recursiveSearch(wordMap, val)
 		if len(expand) != 0 {
 			newDefn = append(newDefn, expand...)
@@ -135,6 +143,11 @@ func (d *Dictionary) recursiveSearch(wordMap map[string]bool, k string) []string
 		defn := d.findDef(k)
 		var newDefn []string = []string{}
 		for _, val := range defn {
+			// get rid of self loops
+			if k == val {
+				newDefn = append(newDefn, val)
+				continue
+			}
 			expand := d.recursiveSearch(wordMap, val)
 			if len(expand) != 0 {
 				newDefn = append(newDefn, expand...)
