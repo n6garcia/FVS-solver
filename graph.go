@@ -158,6 +158,7 @@ func (g *Graph) verify(delNodes []string, freeWords []string) bool {
 	for _, v := range g.vertices {
 		stopWords[v.key] = false
 	}
+
 	for _, k := range delNodes {
 		stopWords[k] = true
 	}
@@ -168,7 +169,7 @@ func (g *Graph) verify(delNodes []string, freeWords []string) bool {
 	whiteSet := make(map[string]bool)
 	for k, v := range stopWords {
 		if !v {
-			whiteSet[k] = !v // true
+			whiteSet[k] = true
 		}
 	}
 
@@ -212,22 +213,26 @@ func (g *Graph) dfs(current string, whiteSet map[string]bool, graySet map[string
 				for _, v := range vert.inList {
 					neighbor := v.key
 
-					bsBool, ok := blackSet[neighbor]
+					stopBool, ok := stopWords[neighbor]
 					if ok {
-						if bsBool {
-							continue
-						}
-					}
+						if !stopBool {
+							bsBool, ok := blackSet[neighbor]
+							if ok {
+								if bsBool {
+									continue
+								}
+							}
+							gsBool, ok := graySet[neighbor]
+							if ok {
+								if gsBool {
+									return true
+								}
+							}
 
-					gsBool, ok := graySet[neighbor]
-					if ok {
-						if gsBool {
-							return true
+							if g.dfs(neighbor, whiteSet, graySet, blackSet, stopWords) {
+								return true
+							}
 						}
-					}
-
-					if g.dfs(neighbor, whiteSet, graySet, blackSet, stopWords) {
-						return true
 					}
 				}
 			}
@@ -235,7 +240,7 @@ func (g *Graph) dfs(current string, whiteSet map[string]bool, graySet map[string
 	}
 
 	// move vertex from graySet to blackSet
-	graySet[current] = false
+	delete(graySet, current)
 	blackSet[current] = true
 
 	return false

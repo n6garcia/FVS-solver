@@ -19,24 +19,29 @@ var dict dictInterface
 
 func main() {
 
-	//LoadDict()
-	LoadWNDict()
+	LoadDict()
+	//LoadWNDict()
 
 	//Solve("wn/")
 
-	//reconstructWord("happy", "wn/delNodes.json")
+	// WORKS ONLY ON DELNODES.JSON
+	//reconstructWord("happy", "old/cullNodes.json")
 
-	//simulatedAnnealing("wn/delNodes.json")
+	// NOT WORKING?
+	//simulatedAnnealing("wn/delNodes.json", "wn/")
 
-	//cullSolution("old/bestSolve.json")
+	// NOT WORKING?
+	//cullSolution("old/delNodes.json", "old/")
 
-	graphVerify("wn/delNodes.json")
+	//graphVerify("old/cullNodes.json")
+
+	//alternateVerify("old/delNodes.json")
 
 	//dictVerify("wn/delNodes.json")
 
 	//exportJson()
 
-	//exportCSV()
+	//exportCSV("old/delNodes.json", "old/")
 
 	//handleServer("wn/delNodes.json")
 
@@ -178,7 +183,7 @@ func Solve(folder string) {
 	fmt.Println("\ntime elapsed : ", elapsed)
 }
 
-func cullSolution(fn string) {
+func cullSolution(fn string, folder string) {
 	tGraph = &Graph{vertices: make(map[string]*Vertex)}
 
 	dict.AddData(tGraph)
@@ -191,7 +196,7 @@ func cullSolution(fn string) {
 
 	cullNodes := tGraph.cullSol(delNodes, listFree)
 
-	write(cullNodes, "cullNodes.json")
+	write(cullNodes, folder+"cullNodes.json")
 
 	fmt.Println("nodes removed: ", len(cullNodes))
 
@@ -200,7 +205,7 @@ func cullSolution(fn string) {
 	fmt.Println("\ntime elapsed : ", elapsed)
 }
 
-func simulatedAnnealing(fn string) {
+func simulatedAnnealing(fn string, folder string) {
 	tGraph = &Graph{vertices: make(map[string]*Vertex)}
 
 	dict.AddData(tGraph)
@@ -213,7 +218,7 @@ func simulatedAnnealing(fn string) {
 
 	simNodes := tGraph.simAnneal(delNodes, listFree)
 
-	write(simNodes, "simNodes.json")
+	write(simNodes, folder+"simNodes.json")
 
 	fmt.Println("nodes removed: ", len(simNodes))
 
@@ -236,6 +241,34 @@ func graphVerify(fn string) {
 	verified := tGraph.verify(delNodes, listFree)
 
 	fmt.Println("verified: ", verified)
+
+	t := time.Now()
+	elapsed := t.Sub(start)
+	fmt.Println("\ntime elapsed : ", elapsed)
+}
+
+func alternateVerify(fn string) {
+	delNodes = getNodes(fn)
+
+	tGraph = &Graph{vertices: make(map[string]*Vertex)}
+
+	dict.AddData(tGraph)
+
+	start := time.Now()
+
+	tGraph.firstPop()
+
+	for _, k := range delNodes {
+		delList := tGraph.DeleteVertex(k)
+
+		pops, delList := tGraph.popList(delList)
+
+		for pops != 0 {
+			pops, delList = tGraph.popList(delList)
+		}
+	}
+
+	fmt.Println(tGraph.Size())
 
 	t := time.Now()
 	elapsed := t.Sub(start)
@@ -308,7 +341,7 @@ func exportJson() {
 	}
 }
 
-func exportCSV() {
+func exportCSV(fn string, folder string) {
 	rows := [][]string{
 		{"source", "target"},
 	}
@@ -316,15 +349,22 @@ func exportCSV() {
 	tGraph = &Graph{vertices: make(map[string]*Vertex)}
 	dict.AddData(tGraph)
 
+	delNodes = getNodes(fn)
+	for _, k := range delNodes {
+		tGraph.DeleteVertex(k)
+	}
+
 	for _, vert := range tGraph.vertices {
 
 		for _, out := range vert.outList {
-			rows = append(rows, []string{vert.key, out.key})
+			if out.key != "" {
+				rows = append(rows, []string{vert.key, out.key})
+			}
 		}
 
 	}
 
-	csvfile, err := os.Create("data/expCSV.csv")
+	csvfile, err := os.Create(folder + "expCSV.csv")
 
 	if err != nil {
 		log.Fatalf("Failed to create file, : %s", err)

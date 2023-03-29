@@ -114,6 +114,11 @@ func (d *Dictionary) expandDef(delNodes []string, k string) string {
 			newDefn = append(newDefn, val)
 			continue
 		}
+		wmBool, ok := wordMap[val]
+		if !ok || wmBool {
+			newDefn = append(newDefn, val)
+			continue
+		}
 		expand := d.recursiveSearch(wordMap, val)
 		if len(expand) != 0 {
 			newDefn = append(newDefn, expand...)
@@ -148,12 +153,18 @@ func (d *Dictionary) recursiveSearch(wordMap map[string]bool, k string) []string
 				newDefn = append(newDefn, val)
 				continue
 			}
+			wmBool, ok := wordMap[val]
+			if !ok || wmBool {
+				newDefn = append(newDefn, val)
+				continue
+			}
 			expand := d.recursiveSearch(wordMap, val)
 			if len(expand) != 0 {
 				newDefn = append(newDefn, expand...)
 			} else {
 				newDefn = append(newDefn, val)
 			}
+
 		}
 		return newDefn
 	}
