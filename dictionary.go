@@ -158,7 +158,9 @@ func (d *Dictionary) recursiveSearch(wordMap map[string]bool, k string) []string
 				newDefn = append(newDefn, val)
 				continue
 			}
+
 			expand := d.recursiveSearch(wordMap, val)
+
 			if len(expand) != 0 {
 				newDefn = append(newDefn, expand...)
 			} else {

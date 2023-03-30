@@ -19,25 +19,23 @@ var dict dictInterface
 
 func main() {
 
-	LoadDict()
-	//LoadWNDict()
+	//LoadDict()
+	LoadWNDict()
 
 	//Solve("wn/")
 
-	// WORKS ONLY ON DELNODES.JSON
+	// WORKS ONLY ON DELNODES.JSON?
 	//reconstructWord("happy", "old/cullNodes.json")
 
-	// NOT WORKING?
 	//simulatedAnnealing("wn/delNodes.json", "wn/")
 
-	// NOT WORKING?
 	//cullSolution("old/delNodes.json", "old/")
 
 	//graphVerify("old/cullNodes.json")
 
 	//alternateVerify("old/delNodes.json")
 
-	//dictVerify("wn/delNodes.json")
+	//dictVerify("wn/cullNodes.json")
 
 	//exportJson()
 
