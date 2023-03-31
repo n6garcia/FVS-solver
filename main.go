@@ -19,13 +19,12 @@ var dict dictInterface
 
 func main() {
 
-	//LoadDict()
-	LoadWNDict()
+	LoadDict()
+	//LoadWNDict()
 
 	//Solve("wn/")
 
-	// WORKS ONLY ON DELNODES.JSON?
-	//reconstructWord("happy", "old/cullNodes.json")
+	reconstructWord("happy", "old/delNodes.json")
 
 	//simulatedAnnealing("wn/delNodes.json", "wn/")
 
