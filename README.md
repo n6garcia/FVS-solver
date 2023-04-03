@@ -28,7 +28,7 @@ I have so far been unable to determine the size of the minimum FVS for each of t
 
 An application of the FVS algorithm on my website where definitions of any word can be searched up and defined using only words in the FVS.
 
-[coming soon!]
+https://noeldev.site/search/search.html
 
 ## Dataset(s)
 
