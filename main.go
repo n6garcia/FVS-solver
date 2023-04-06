@@ -2,14 +2,14 @@ package main
 
 func main() {
 
-	dict := LoadDict()
-	//dict := LoadWNDict()
+	//dict := LoadDict()
+	dict := LoadWNDict()
 
 	//Solve(dict, "old/")
 
 	//reconstructWord(dict, "happy", "old/delNodes.json")
 
-	exportSol(dict, "old/delNodes.json", "oldSol.json")
+	exportSol(dict, "wn/delNodes.json", "wnSol.json")
 
 	//simulatedAnnealing(dict, "wn/delNodes.json", "wn/")
 
