@@ -7,7 +7,9 @@ func main() {
 
 	//Solve(dict, "old/")
 
-	reconstructWord(dict, "happy", "old/delNodes.json")
+	//reconstructWord(dict, "happy", "old/delNodes.json")
+
+	exportSol(dict, "old/delNodes.json", "oldSol.json")
 
 	//simulatedAnnealing(dict, "wn/delNodes.json", "wn/")
 

@@ -124,14 +124,23 @@ func reconstructWord(dict dictInterface, word string, fn string) {
 	fmt.Println(defn)
 }
 
-func exportSol(dict dictInterface, fn string) {
+func exportSol(dict dictInterface, fn string, fn2 string) {
 	start := time.Now()
 
 	delNodes := getNodes(fn)
 
-	verified := dict.verify(delNodes)
+	m := dict.export(delNodes)
 
-	fmt.Println("verified: ", verified)
+	b, err := json.MarshalIndent(m, "", "")
+
+	if err != nil {
+		fmt.Printf("Error: %s", err.Error())
+	} else {
+		err = os.WriteFile("sol/"+fn2, b, 0644)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
 
 	t := time.Now()
 	elapsed := t.Sub(start)
@@ -244,6 +253,37 @@ func dictVerify(dict dictInterface, fn string) {
 	fmt.Println("\ntime elapsed : ", elapsed)
 }
 
+func origHandler(w http.ResponseWriter, r *http.Request) {
+	word := r.FormValue("word")
+
+	//defn := dict.getDef(word)
+	defn := word
+
+	w.Write([]byte(defn))
+}
+
+func newHandler(w http.ResponseWriter, r *http.Request) {
+	word := r.FormValue("word")
+
+	//defn := dict.expandDef(delNodes, word)
+	defn := word
+
+	w.Write([]byte(defn))
+}
+
+func handleServer(fn string) {
+	//delNodes := getNodes(fn)
+
+	r := mux.NewRouter()
+
+	r.HandleFunc("/orig", origHandler).Methods("GET")
+	r.HandleFunc("/new", newHandler).Methods("GET")
+
+	http.Handle("/", r)
+
+	log.Fatal(http.ListenAndServe(":3001", nil))
+}
+
 func exportJson(dict dictInterface) {
 	type node struct {
 		Name string `json:"name"`
@@ -333,35 +373,4 @@ func exportCSV(dict dictInterface, fn string, folder string) {
 
 	cswriter.Flush()
 	csvfile.Close()
-}
-
-func origHandler(w http.ResponseWriter, r *http.Request) {
-	word := r.FormValue("word")
-
-	//defn := dict.getDef(word)
-	defn := word
-
-	w.Write([]byte(defn))
-}
-
-func newHandler(w http.ResponseWriter, r *http.Request) {
-	word := r.FormValue("word")
-
-	//defn := dict.expandDef(delNodes, word)
-	defn := word
-
-	w.Write([]byte(defn))
-}
-
-func handleServer(fn string) {
-	//delNodes := getNodes(fn)
-
-	r := mux.NewRouter()
-
-	r.HandleFunc("/orig", origHandler).Methods("GET")
-	r.HandleFunc("/new", newHandler).Methods("GET")
-
-	http.Handle("/", r)
-
-	log.Fatal(http.ListenAndServe(":3001", nil))
 }

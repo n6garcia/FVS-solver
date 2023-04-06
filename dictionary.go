@@ -16,6 +16,7 @@ type dictInterface interface {
 	getDef(string) string
 	expandDef([]string, string) string
 	verify([]string) bool
+	export([]string) map[string][]string
 }
 
 type Dictionary struct {
@@ -222,6 +223,21 @@ func (d *Dictionary) verify(delNodes []string) bool {
 
 }
 
+func (d *Dictionary) export(delNodes []string) map[string][]string {
+	fmt.Println("exporting...")
+
+	var set map[string][]string = make(map[string][]string)
+
+	for _, val := range d.definitions {
+		var sol []string
+		sol = append(sol, d.getDef(val.name))
+		sol = append(sol, d.expandDef(delNodes, val.name))
+		set[val.name] = sol
+	}
+
+	return set
+}
+
 type WNdict struct {
 	IDMappings  map[string]*WNdef
 	definitions map[string][]*WNdef
@@ -425,4 +441,19 @@ func (wn *WNdict) verify(delNodes []string) bool {
 
 	return true
 
+}
+
+func (d *WNdict) export(delNodes []string) map[string][]string {
+	fmt.Println("exporting...")
+
+	var set map[string][]string = make(map[string][]string)
+
+	for _, val := range d.definitions {
+		var sol []string
+		sol = append(sol, d.getDef(val[0].name))
+		sol = append(sol, d.expandDef(delNodes, val[0].name))
+		set[val[0].name] = sol
+	}
+
+	return set
 }
