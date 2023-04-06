@@ -17,6 +17,7 @@ type dictInterface interface {
 	expandDef([]string, string) string
 	verify([]string) bool
 	export([]string) map[string][]string
+	getFolder() string
 }
 
 type Dictionary struct {
@@ -28,6 +29,10 @@ type Dictionary struct {
 type Definition struct {
 	name  string
 	words []string
+}
+
+func (d *Dictionary) getFolder() string {
+	return "data/old/"
 }
 
 func (d *Dictionary) Print() {
@@ -51,8 +56,6 @@ func (d *Dictionary) loadData(fn string) {
 	if err != nil {
 		fmt.Print(err)
 	}
-
-	fmt.Println("isValid: ", json.Valid(bytes))
 
 	var myData map[string][]interface{}
 
@@ -249,6 +252,10 @@ type WNdef struct {
 	regexDef   string
 	regexWords []string
 	mappings   []string
+}
+
+func (wn *WNdict) getFolder() string {
+	return "data/wn/"
 }
 
 func (wn *WNdict) Print() {

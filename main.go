@@ -2,28 +2,28 @@ package main
 
 func main() {
 
+	handleServer("wnSol.json")
+
 	//dict := LoadDict()
-	dict := LoadWNDict()
+	//dict := LoadWNDict()
 
-	//Solve(dict, "old/")
+	//Solve(dict)
 
-	//reconstructWord(dict, "happy", "old/delNodes.json")
+	//reconstructWord(dict, "happy", "delNodes.json")
 
-	exportSol(dict, "wn/delNodes.json", "wnSol.json")
+	//exportSol(dict, "delNodes.json", "wnSol.json")
 
-	//simulatedAnnealing(dict, "wn/delNodes.json", "wn/")
+	//simulatedAnnealing(dict, "delNodes.json")
 
-	//cullSolution(dict, "old/delNodes.json", "old/")
+	//cullSolution(dict, "delNodes.json")
 
-	//graphVerify(dict, "old/cullNodes.json")
+	//graphVerify(dict, "delNodes.json")
 
-	//alternateVerify(dict, "old/delNodes.json")
+	//alternateVerify(dict, "delNodes.json")
 
-	//dictVerify(dict, "wn/cullNodes.json")
+	//dictVerify(dict, "cullNodes.json")
 
 	//exportJson(dict)
 
-	//exportCSV(dict, "old/delNodes.json", "old/")
-
-	//handleServer(dict, "old/delNodes.json")
+	//exportCSV(dict, "delNodes.json")
 }

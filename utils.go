@@ -16,6 +16,8 @@ import (
 func LoadDict() dictInterface {
 	start := time.Now()
 
+	fmt.Println("loading dictionary...")
+
 	dict := &Dictionary{definitions: make(map[string]*Definition)}
 
 	for ch := 'A'; ch <= 'Z'; ch++ {
@@ -35,6 +37,8 @@ func LoadDict() dictInterface {
 
 func LoadWNDict() dictInterface {
 	start := time.Now()
+
+	fmt.Println("loading dictionary...")
 
 	dict := &WNdict{definitions: make(map[string][]*WNdef), IDMappings: make(map[string]*WNdef)}
 
@@ -89,7 +93,9 @@ func getNodes(fn string) []string {
 	return myData
 }
 
-func Solve(dict dictInterface, folder string) {
+func Solve(dict dictInterface) {
+	folder := dict.getFolder()
+
 	tGraph := &Graph{vertices: make(map[string]*Vertex), pqMap: make(map[string]*Item)}
 
 	dict.AddData(tGraph)
@@ -113,7 +119,9 @@ func Solve(dict dictInterface, folder string) {
 }
 
 func reconstructWord(dict dictInterface, word string, fn string) {
-	delNodes := getNodes(fn)
+	folder := dict.getFolder()
+
+	delNodes := getNodes(folder + fn)
 
 	defn := dict.getDef(word)
 
@@ -127,7 +135,9 @@ func reconstructWord(dict dictInterface, word string, fn string) {
 func exportSol(dict dictInterface, fn string, fn2 string) {
 	start := time.Now()
 
-	delNodes := getNodes(fn)
+	folder := dict.getFolder()
+
+	delNodes := getNodes(folder + fn)
 
 	m := dict.export(delNodes)
 
@@ -136,7 +146,7 @@ func exportSol(dict dictInterface, fn string, fn2 string) {
 	if err != nil {
 		fmt.Printf("Error: %s", err.Error())
 	} else {
-		err = os.WriteFile("sol/"+fn2, b, 0644)
+		err = os.WriteFile("data/sol/"+fn2, b, 0644)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -147,14 +157,16 @@ func exportSol(dict dictInterface, fn string, fn2 string) {
 	fmt.Println("\ntime elapsed : ", elapsed)
 }
 
-func cullSolution(dict dictInterface, fn string, folder string) {
+func cullSolution(dict dictInterface, fn string) {
+	folder := dict.getFolder()
+
 	tGraph := &Graph{vertices: make(map[string]*Vertex)}
 
 	dict.AddData(tGraph)
 
 	listFree := tGraph.top()
 
-	delNodes := getNodes(fn)
+	delNodes := getNodes(folder + fn)
 
 	start := time.Now()
 
@@ -169,14 +181,16 @@ func cullSolution(dict dictInterface, fn string, folder string) {
 	fmt.Println("\ntime elapsed : ", elapsed)
 }
 
-func simulatedAnnealing(dict dictInterface, fn string, folder string) {
+func simulatedAnnealing(dict dictInterface, fn string) {
+	folder := dict.getFolder()
+
 	tGraph := &Graph{vertices: make(map[string]*Vertex)}
 
 	dict.AddData(tGraph)
 
 	listFree := tGraph.top()
 
-	delNodes := getNodes(fn)
+	delNodes := getNodes(folder + fn)
 
 	start := time.Now()
 
@@ -192,7 +206,9 @@ func simulatedAnnealing(dict dictInterface, fn string, folder string) {
 }
 
 func graphVerify(dict dictInterface, fn string) {
-	delNodes := getNodes(fn)
+	folder := dict.getFolder()
+
+	delNodes := getNodes(folder + fn)
 
 	tGraph := &Graph{vertices: make(map[string]*Vertex)}
 
@@ -212,7 +228,9 @@ func graphVerify(dict dictInterface, fn string) {
 }
 
 func alternateVerify(dict dictInterface, fn string) {
-	delNodes := getNodes(fn)
+	folder := dict.getFolder()
+
+	delNodes := getNodes(folder + fn)
 
 	tGraph := &Graph{vertices: make(map[string]*Vertex)}
 
@@ -242,7 +260,9 @@ func alternateVerify(dict dictInterface, fn string) {
 func dictVerify(dict dictInterface, fn string) {
 	start := time.Now()
 
-	delNodes := getNodes(fn)
+	folder := dict.getFolder()
+
+	delNodes := getNodes(folder + fn)
 
 	verified := dict.verify(delNodes)
 
@@ -256,23 +276,45 @@ func dictVerify(dict dictInterface, fn string) {
 func origHandler(w http.ResponseWriter, r *http.Request) {
 	word := r.FormValue("word")
 
-	//defn := dict.getDef(word)
-	defn := word
+	val, ok := SOL[word]
+	if ok {
+		w.Write([]byte(val[0]))
+	} else {
+		w.Write([]byte(""))
+	}
 
-	w.Write([]byte(defn))
 }
 
 func newHandler(w http.ResponseWriter, r *http.Request) {
 	word := r.FormValue("word")
 
-	//defn := dict.expandDef(delNodes, word)
-	defn := word
-
-	w.Write([]byte(defn))
+	val, ok := SOL[word]
+	if ok {
+		w.Write([]byte(val[1]))
+	} else {
+		w.Write([]byte(""))
+	}
 }
 
+var SOL map[string][]string
+
 func handleServer(fn string) {
-	//delNodes := getNodes(fn)
+	bytes, err := os.ReadFile("data/sol/" + fn)
+	if err != nil {
+		fmt.Print(err)
+	}
+
+	var myData map[string][]interface{}
+
+	json.Unmarshal(bytes, &myData)
+
+	SOL = make(map[string][]string)
+
+	for k, v := range myData {
+		for _, u := range v {
+			SOL[k] = append(SOL[k], u.(string))
+		}
+	}
 
 	r := mux.NewRouter()
 
@@ -285,6 +327,8 @@ func handleServer(fn string) {
 }
 
 func exportJson(dict dictInterface) {
+	folder := dict.getFolder()
+
 	type node struct {
 		Name string `json:"name"`
 	}
@@ -329,14 +373,16 @@ func exportJson(dict dictInterface) {
 	if err != nil {
 		fmt.Printf("Error: %s", err.Error())
 	} else {
-		err = os.WriteFile("data/expJson.json", b, 0644)
+		err = os.WriteFile(folder+"expJson.json", b, 0644)
 		if err != nil {
 			log.Fatal(err)
 		}
 	}
 }
 
-func exportCSV(dict dictInterface, fn string, folder string) {
+func exportCSV(dict dictInterface, fn string) {
+	folder := dict.getFolder()
+
 	rows := [][]string{
 		{"source", "target"},
 	}
@@ -344,7 +390,7 @@ func exportCSV(dict dictInterface, fn string, folder string) {
 	tGraph := &Graph{vertices: make(map[string]*Vertex)}
 	dict.AddData(tGraph)
 
-	delNodes := getNodes(fn)
+	delNodes := getNodes(folder + fn)
 	for _, k := range delNodes {
 		tGraph.DeleteVertex(k)
 	}
