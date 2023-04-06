@@ -62,6 +62,9 @@ func (d *Dictionary) loadData(fn string) {
 	json.Unmarshal(bytes, &myData)
 
 	for k, v := range myData {
+		if k == "" {
+			continue
+		}
 		var words []string
 		for _, u := range v {
 			words = append(words, u.(string))
@@ -282,8 +285,6 @@ func (wn *WNdict) loadData(fn string) {
 		fmt.Print(err)
 	}
 
-	fmt.Println("isValid: ", json.Valid(bytes))
-
 	var myData map[string][]interface{}
 
 	json.Unmarshal(bytes, &myData)
@@ -293,6 +294,10 @@ func (wn *WNdict) loadData(fn string) {
 		name := v[0].(string)
 		origDef := v[1].(string)
 		regexDef := v[2].(string)
+
+		if name == "" {
+			continue
+		}
 
 		regexWordsInterface := v[3].([]interface{})
 		var regexWords []string

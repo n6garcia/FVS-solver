@@ -313,6 +313,7 @@ func handleServer(fn string) {
 	for k, v := range myData {
 		for _, u := range v {
 			SOL[k] = append(SOL[k], u.(string))
+			fmt.Println(u.(string))
 		}
 	}
 
