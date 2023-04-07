@@ -4,14 +4,14 @@ func main() {
 
 	//handleServer("wnSol.json")
 
-	//dict := LoadDict()
-	dict := LoadWNDict()
+	dict := LoadDict()
+	//dict := LoadWNDict()
 
 	//Solve(dict)
 
 	//reconstructWord(dict, "happy", "delNodes.json")
 
-	exportSol(dict, "delNodes.json", "wnSolTest.json")
+	exportSol(dict, "delNodes.json", "oldSol.json")
 
 	//simulatedAnnealing(dict, "delNodes.json")
 
