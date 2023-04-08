@@ -330,7 +330,7 @@ func handleServer(fn string) {
 	log.Fatal(http.ListenAndServe(":3001", nil))
 }
 
-func exportTree(dict dictInterface, fn string) {
+func exportTrees(dict dictInterface, fn string) {
 	folder := dict.getFolder()
 
 	delNodes := getNodes(folder + fn)
