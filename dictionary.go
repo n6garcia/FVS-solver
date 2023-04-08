@@ -18,6 +18,7 @@ type dictInterface interface {
 	verify([]string) bool
 	export([]string) map[string][]string
 	getFolder() string
+	getNames() []string
 }
 
 type Dictionary struct {
@@ -33,6 +34,16 @@ type Definition struct {
 
 func (d *Dictionary) getFolder() string {
 	return "data/old/"
+}
+
+func (d *Dictionary) getNames() []string {
+	var names []string
+
+	for _, v := range d.definitions {
+		names = append(names, v.name)
+	}
+
+	return names
 }
 
 func (d *Dictionary) Print() {
@@ -259,6 +270,16 @@ type WNdef struct {
 
 func (wn *WNdict) getFolder() string {
 	return "data/wn/"
+}
+
+func (wn *WNdict) getNames() []string {
+	var names []string
+
+	for _, v := range wn.definitions {
+		names = append(names, v[0].name)
+	}
+
+	return names
 }
 
 func (wn *WNdict) Print() {

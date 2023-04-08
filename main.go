@@ -2,16 +2,16 @@ package main
 
 func main() {
 
-	//handleServer("wnSol.json")
+	handleServer("wnSol.json")
 
-	dict := LoadDict()
+	//dict := LoadDict()
 	//dict := LoadWNDict()
 
 	//Solve(dict)
 
 	//reconstructWord(dict, "happy", "delNodes.json")
 
-	exportSol(dict, "delNodes.json", "oldSol.json")
+	//exportSol(dict, "delNodes.json", "oldSol.json")
 
 	//simulatedAnnealing(dict, "delNodes.json")
 
@@ -22,6 +22,8 @@ func main() {
 	//alternateVerify(dict, "delNodes.json")
 
 	//dictVerify(dict, "cullNodes.json")
+
+	//exportNames(dict)
 
 	//exportJson(dict)
 

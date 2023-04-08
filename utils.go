@@ -299,6 +299,8 @@ func newHandler(w http.ResponseWriter, r *http.Request) {
 var SOL map[string][]string
 
 func handleServer(fn string) {
+	fmt.Println("starting server...")
+
 	bytes, err := os.ReadFile("data/sol/" + fn)
 	if err != nil {
 		fmt.Print(err)
@@ -324,7 +326,28 @@ func handleServer(fn string) {
 
 	http.Handle("/", r)
 
+	fmt.Println("server ready!")
+
 	log.Fatal(http.ListenAndServe(":3001", nil))
+}
+
+// func exportTree()
+
+func exportNames(dict dictInterface) {
+	folder := dict.getFolder()
+
+	export := dict.getNames()
+
+	b, err := json.MarshalIndent(export, "", "")
+
+	if err != nil {
+		fmt.Printf("Error: %s", err.Error())
+	} else {
+		err = os.WriteFile(folder+"names.json", b, 0644)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
 }
 
 func exportJson(dict dictInterface) {
