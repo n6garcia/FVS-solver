@@ -330,7 +330,79 @@ func handleServer(fn string) {
 	log.Fatal(http.ListenAndServe(":3001", nil))
 }
 
-// func exportTree()
+func exportTree(dict dictInterface, fn string) {
+	folder := dict.getFolder()
+
+	delNodes := getNodes(folder + fn)
+
+	type node struct {
+		Name string `json:"name"`
+	}
+
+	type link struct {
+		Source string `json:"source"`
+		Target string `json:"target"`
+	}
+
+	type expGraph struct {
+		Nodes []node `json:"nodes"`
+		Links []link `json:"links"`
+	}
+
+	tGraph := &Graph{vertices: make(map[string]*Vertex)}
+	dict.AddData(tGraph)
+
+	fmt.Println("exporting trees...")
+
+	var export map[string]expGraph = make(map[string]expGraph)
+
+	for _, v := range tGraph.vertices {
+		var set []string
+		set = append(set, v.key)
+
+		var g expGraph
+
+		for len(set) != 0 {
+			key := set[0]
+			set = append(set[:0], set[1:]...)
+			vert := tGraph.vertices[key]
+			n := node{vert.key}
+			g.Nodes = append(g.Nodes, n)
+
+			b := false
+			for _, del := range delNodes {
+				if vert.key == del {
+					b = true
+				}
+			}
+			if b {
+				continue
+			}
+
+			for _, neighbor := range vert.inList {
+				set = append(set, neighbor.key)
+
+				l := link{vert.key, neighbor.key}
+
+				g.Links = append(g.Links, l)
+			}
+
+		}
+
+		export[v.key] = g
+	}
+
+	b, err := json.MarshalIndent(export, "", " ")
+
+	if err != nil {
+		fmt.Printf("Error: %s", err.Error())
+	} else {
+		err = os.WriteFile(folder+"trees.json", b, 0644)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+}
 
 func exportNames(dict dictInterface) {
 	folder := dict.getFolder()
@@ -413,9 +485,11 @@ func exportCSV(dict dictInterface, fn string) {
 	tGraph := &Graph{vertices: make(map[string]*Vertex)}
 	dict.AddData(tGraph)
 
-	delNodes := getNodes(folder + fn)
-	for _, k := range delNodes {
-		tGraph.DeleteVertex(k)
+	if fn != "" {
+		delNodes := getNodes(folder + fn)
+		for _, k := range delNodes {
+			tGraph.DeleteVertex(k)
+		}
 	}
 
 	for _, vert := range tGraph.vertices {
