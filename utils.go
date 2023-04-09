@@ -320,7 +320,8 @@ func gHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println(n)
+
+		// optimize here! add program that goes token by token skipping entire struct!! count up "{" and subtract "}" until reach 0!
 
 		var g expGraph
 		if err := dec.Decode(&g); err == io.EOF {
@@ -328,7 +329,6 @@ func gHandler(w http.ResponseWriter, r *http.Request) {
 		} else if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println(g)
 
 		if n == word {
 			ret = g
@@ -403,16 +403,32 @@ func exportTrees(dict dictInterface, fn string) {
 		var set []string
 		set = append(set, v.key)
 
+		var X []string
+
 		var g expGraph
 
 		for len(set) != 0 {
 			key := set[0]
 			set = append(set[:0], set[1:]...)
+
+			var b bool = false
+			for _, x := range X {
+				if key == x {
+					b = true
+					break
+				}
+			}
+			if b {
+				continue
+			} else {
+				X = append(X, key)
+			}
+
 			vert := tGraph.vertices[key]
 			n := node{vert.key}
 			g.Nodes = append(g.Nodes, n)
 
-			b := false
+			b = false
 			for _, del := range delNodes {
 				if vert.key == del {
 					b = true
