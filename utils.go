@@ -5,6 +5,7 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -278,7 +279,7 @@ func origHandler(w http.ResponseWriter, r *http.Request) {
 
 	val, ok := SOL[word]
 	if ok {
-		w.Write([]byte(val[0]))
+		w.Write([]byte(val[0].(string)))
 	} else {
 		w.Write([]byte(""))
 	}
@@ -290,7 +291,7 @@ func newHandler(w http.ResponseWriter, r *http.Request) {
 
 	val, ok := SOL[word]
 	if ok {
-		w.Write([]byte(val[1]))
+		w.Write([]byte(val[1].(string)))
 	} else {
 		w.Write([]byte(""))
 	}
@@ -299,12 +300,14 @@ func newHandler(w http.ResponseWriter, r *http.Request) {
 func gHandler(w http.ResponseWriter, r *http.Request) {
 	word := r.FormValue("word")
 
-	val, ok := TREES[word]
-	if ok {
-		w.Write(val)
-	} else {
-		w.Write([]byte(""))
+	dec := json.NewDecoder(READ)
+
+	t, err := dec.Token()
+	if err != nil {
+		log.Fatal(err)
 	}
+
+	fmt.Println(t, ":", word)
 
 }
 
@@ -322,8 +325,8 @@ type expGraph struct {
 	Links []link `json:"links"`
 }
 
-var SOL map[string][]string
-var TREES map[string][]byte
+var SOL map[string][]interface{}
+var READ io.Reader
 
 func handleServer(fn string) {
 	fmt.Println("starting server...")
@@ -331,33 +334,17 @@ func handleServer(fn string) {
 	bytes, err := os.ReadFile("data/sol/" + fn)
 	if err != nil {
 		fmt.Print(err)
+		return
 	}
 
-	var solData map[string][]interface{}
+	bytes = nil
 
-	json.Unmarshal(bytes, &solData)
+	json.Unmarshal(bytes, &SOL)
 
-	SOL = make(map[string][]string)
-
-	for k, v := range solData {
-		for _, u := range v {
-			SOL[k] = append(SOL[k], u.(string))
-		}
-	}
-
-	bytes, err = os.ReadFile("data/wn/trees.json")
+	READ, err = os.Open("data/wn/trees.json")
 	if err != nil {
 		fmt.Print(err)
-	}
-
-	var gData map[string]interface{}
-
-	json.Unmarshal(bytes, &gData)
-
-	TREES = make(map[string][]byte)
-
-	for k, v := range gData {
-		TREES[k], _ = json.MarshalIndent(v, "", " ")
+		return
 	}
 
 	r := mux.NewRouter()
