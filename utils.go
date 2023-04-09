@@ -279,7 +279,7 @@ func origHandler(w http.ResponseWriter, r *http.Request) {
 
 	val, ok := SOL[word]
 	if ok {
-		w.Write([]byte(val[0].(string)))
+		w.Write([]byte(val[0]))
 	} else {
 		w.Write([]byte(""))
 	}
@@ -291,7 +291,7 @@ func newHandler(w http.ResponseWriter, r *http.Request) {
 
 	val, ok := SOL[word]
 	if ok {
-		w.Write([]byte(val[1].(string)))
+		w.Write([]byte(val[1]))
 	} else {
 		w.Write([]byte(""))
 	}
@@ -310,12 +310,13 @@ func gHandler(w http.ResponseWriter, r *http.Request) {
 	dec := json.NewDecoder(file)
 
 	for {
-		t, err := dec.Token()
-		if err == io.EOF {
+		var g expGraph
+		if err := dec.Decode(&g); err == io.EOF {
 			break
+		} else if err != nil {
+			log.Fatal(err)
 		}
-
-		fmt.Println(t)
+		fmt.Println(g)
 	}
 
 }
@@ -334,7 +335,7 @@ type expGraph struct {
 	Links []link `json:"links"`
 }
 
-var SOL map[string][]interface{}
+var SOL map[string][]string
 
 func handleServer(fn string) {
 	fmt.Println("starting server...")
@@ -345,9 +346,9 @@ func handleServer(fn string) {
 		return
 	}
 
-	bytes = nil
-
 	json.Unmarshal(bytes, &SOL)
+
+	bytes = nil
 
 	r := mux.NewRouter()
 
