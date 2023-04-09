@@ -298,7 +298,7 @@ func newHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func gHandler(w http.ResponseWriter, r *http.Request) {
-	//word := r.FormValue("word")
+	word := r.FormValue("word")
 
 	file, err := os.Open("data/wn/trees.json")
 	if err != nil {
@@ -309,7 +309,19 @@ func gHandler(w http.ResponseWriter, r *http.Request) {
 
 	dec := json.NewDecoder(file)
 
+	_, err = dec.Token()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var ret expGraph
 	for {
+		n, err := dec.Token()
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(n)
+
 		var g expGraph
 		if err := dec.Decode(&g); err == io.EOF {
 			break
@@ -317,7 +329,19 @@ func gHandler(w http.ResponseWriter, r *http.Request) {
 			log.Fatal(err)
 		}
 		fmt.Println(g)
+
+		if n == word {
+			ret = g
+			break
+		}
 	}
+
+	b, err := json.MarshalIndent(ret, "", " ")
+	if err != nil {
+		w.Write([]byte(""))
+	}
+
+	w.Write(b)
 
 }
 
