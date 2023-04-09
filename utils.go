@@ -321,18 +321,40 @@ func gHandler(w http.ResponseWriter, r *http.Request) {
 			log.Fatal(err)
 		}
 
-		// optimize here! add program that goes token by token skipping entire struct!! count up "{" and subtract "}" until reach 0!
-
-		var g expGraph
-		if err := dec.Decode(&g); err == io.EOF {
-			break
-		} else if err != nil {
-			log.Fatal(err)
-		}
-
 		if n == word {
+			var g expGraph
+			if err := dec.Decode(&g); err == io.EOF {
+				break
+			} else if err != nil {
+				log.Fatal(err)
+			}
+
 			ret = g
 			break
+		} else {
+			t, err := dec.Token()
+			if err != nil {
+				log.Fatal(err)
+			}
+			ctr := 1
+
+			for ctr != 0 {
+				t, err = dec.Token()
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				var del json.Delim = '{'
+				var open json.Token = del
+				del = '}'
+				var close json.Token = del
+
+				if t == open {
+					ctr += 1
+				} else if t == close {
+					ctr -= 1
+				}
+			}
 		}
 	}
 
