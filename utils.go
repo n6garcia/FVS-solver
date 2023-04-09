@@ -5,7 +5,6 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"os"
@@ -300,7 +299,14 @@ func newHandler(w http.ResponseWriter, r *http.Request) {
 func gHandler(w http.ResponseWriter, r *http.Request) {
 	word := r.FormValue("word")
 
-	dec := json.NewDecoder(READ)
+	file, err := os.Open("data/wn/trees.json")
+	defer file.Close()
+	if err != nil {
+		fmt.Print(err)
+		return
+	}
+
+	dec := json.NewDecoder(file)
 
 	t, err := dec.Token()
 	if err != nil {
@@ -326,7 +332,6 @@ type expGraph struct {
 }
 
 var SOL map[string][]interface{}
-var READ io.Reader
 
 func handleServer(fn string) {
 	fmt.Println("starting server...")
@@ -340,12 +345,6 @@ func handleServer(fn string) {
 	bytes = nil
 
 	json.Unmarshal(bytes, &SOL)
-
-	READ, err = os.Open("data/wn/trees.json")
-	if err != nil {
-		fmt.Print(err)
-		return
-	}
 
 	r := mux.NewRouter()
 
