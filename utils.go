@@ -5,6 +5,7 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -297,23 +298,25 @@ func newHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func gHandler(w http.ResponseWriter, r *http.Request) {
-	word := r.FormValue("word")
+	//word := r.FormValue("word")
 
 	file, err := os.Open("data/wn/trees.json")
-	defer file.Close()
 	if err != nil {
 		fmt.Print(err)
 		return
 	}
+	defer file.Close()
 
 	dec := json.NewDecoder(file)
 
-	t, err := dec.Token()
-	if err != nil {
-		log.Fatal(err)
-	}
+	for {
+		t, err := dec.Token()
+		if err == io.EOF {
+			break
+		}
 
-	fmt.Println(t, ":", word)
+		fmt.Println(t)
+	}
 
 }
 
