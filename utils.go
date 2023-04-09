@@ -296,7 +296,34 @@ func newHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func gHandler(w http.ResponseWriter, r *http.Request) {
+	word := r.FormValue("word")
+
+	val, ok := TREES[word]
+	if ok {
+		w.Write(val)
+	} else {
+		w.Write([]byte(""))
+	}
+
+}
+
+type node struct {
+	Name string `json:"name"`
+}
+
+type link struct {
+	Source string `json:"source"`
+	Target string `json:"target"`
+}
+
+type expGraph struct {
+	Nodes []node `json:"nodes"`
+	Links []link `json:"links"`
+}
+
 var SOL map[string][]string
+var TREES map[string][]byte
 
 func handleServer(fn string) {
 	fmt.Println("starting server...")
@@ -306,22 +333,38 @@ func handleServer(fn string) {
 		fmt.Print(err)
 	}
 
-	var myData map[string][]interface{}
+	var solData map[string][]interface{}
 
-	json.Unmarshal(bytes, &myData)
+	json.Unmarshal(bytes, &solData)
 
 	SOL = make(map[string][]string)
 
-	for k, v := range myData {
+	for k, v := range solData {
 		for _, u := range v {
 			SOL[k] = append(SOL[k], u.(string))
 		}
+	}
+
+	bytes, err = os.ReadFile("data/wn/trees.json")
+	if err != nil {
+		fmt.Print(err)
+	}
+
+	var gData map[string]interface{}
+
+	json.Unmarshal(bytes, &gData)
+
+	TREES = make(map[string][]byte)
+
+	for k, v := range gData {
+		TREES[k], _ = json.MarshalIndent(v, "", " ")
 	}
 
 	r := mux.NewRouter()
 
 	r.HandleFunc("/orig", origHandler).Methods("GET")
 	r.HandleFunc("/new", newHandler).Methods("GET")
+	r.HandleFunc("/graph", gHandler).Methods("GET")
 
 	http.Handle("/", r)
 
@@ -334,20 +377,6 @@ func exportTrees(dict dictInterface, fn string) {
 	folder := dict.getFolder()
 
 	delNodes := getNodes(folder + fn)
-
-	type node struct {
-		Name string `json:"name"`
-	}
-
-	type link struct {
-		Source string `json:"source"`
-		Target string `json:"target"`
-	}
-
-	type expGraph struct {
-		Nodes []node `json:"nodes"`
-		Links []link `json:"links"`
-	}
 
 	tGraph := &Graph{vertices: make(map[string]*Vertex)}
 	dict.AddData(tGraph)
@@ -423,20 +452,6 @@ func exportNames(dict dictInterface) {
 
 func exportJson(dict dictInterface) {
 	folder := dict.getFolder()
-
-	type node struct {
-		Name string `json:"name"`
-	}
-
-	type link struct {
-		Source string `json:"source"`
-		Target string `json:"target"`
-	}
-
-	type expGraph struct {
-		Nodes []node `json:"nodes"`
-		Links []link `json:"links"`
-	}
 
 	tGraph := &Graph{vertices: make(map[string]*Vertex)}
 	dict.AddData(tGraph)

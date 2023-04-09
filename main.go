@@ -2,10 +2,10 @@ package main
 
 func main() {
 
-	//handleServer("wnSol.json")
+	handleServer("wnSol.json")
 
 	//dict := LoadDict()
-	dict := LoadWNDict()
+	//dict := LoadWNDict()
 
 	//Solve(dict)
 
@@ -23,7 +23,7 @@ func main() {
 
 	//dictVerify(dict, "cullNodes.json")
 
-	exportTrees(dict, "delNodes.json")
+	//exportTrees(dict, "delNodes.json")
 
 	//exportNames(dict)
 
