@@ -338,6 +338,8 @@ func gHandler(w http.ResponseWriter, r *http.Request) {
 			}
 			ctr := 1
 
+			// slow implementation makes server spike 100% on single request!
+
 			for ctr != 0 {
 				t, err = dec.Token()
 				if err != nil {
