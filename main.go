@@ -2,12 +2,12 @@ package main
 
 func main() {
 
-	handleServer("wnSol.json")
+	//handleServer("wnSol.json")
 
-	//dict := LoadDict()
+	dict := LoadDict()
 	//dict := LoadWNDict()
 
-	//Solve(dict)
+	Solve(dict)
 
 	//reconstructWord(dict, "happy", "delNodes.json")
 

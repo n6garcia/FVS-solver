@@ -97,7 +97,7 @@ func (d *Dictionary) AddData(g *Graph) {
 
 	for _, v := range d.definitions {
 		for _, word := range v.words {
-			// word defines name
+			// word defines name .. a defines b¡
 			if word != v.name {
 				g.AddEdge(word, v.name)
 			}
