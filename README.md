@@ -2,15 +2,9 @@
 
 ### `What is the smallest set of words that can be used to define every word in the dictionary?`
 
-### Exclaimer: if you steal my work you will go to hell :3. billionare proj loading...
+### Note: If you like the mind expanding material leave a star¡ ::3
 
-### Note: If you like the mind expanding material leave a star. :3
-
-### Fact: Thanks for doing my job for me. :#
-
-### Author: Noel Garcia - n6garcia@ucsd.edu - SDSU, The Essential 1124.
-
-### Error: Ban wave incoming! duck and cover!
+### Author: Noel Garcia - n6garcia@ucsd.edu - The Essential #1124 (5595 Lindo Paseo, San Diego, CA 92115)
 
 ## Introduction
 
