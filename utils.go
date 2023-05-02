@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -424,6 +425,10 @@ func exportTrees(dict dictInterface, fn string) {
 	var export map[string]expGraph = make(map[string]expGraph)
 
 	for _, v := range tGraph.vertices {
+		if strings.Contains(v.key, "/") {
+			continue
+		}
+
 		var set []string
 		set = append(set, v.key)
 
