@@ -300,7 +300,7 @@ func newHandler(w http.ResponseWriter, r *http.Request) {
 func gHandler(w http.ResponseWriter, r *http.Request) {
 	word := r.FormValue("word")
 
-	file, err := os.Open("data/wn/trees.json")
+	file, err := os.Open("data/wn/trees/" + word + ".json")
 	if err != nil {
 		fmt.Print(err)
 		return
@@ -473,18 +473,23 @@ func exportTrees(dict dictInterface, fn string) {
 		}
 
 		export[v.key] = g
-	}
 
-	b, err := json.MarshalIndent(export, "", " ")
+		b, err := json.MarshalIndent(export, "", " ")
 
-	if err != nil {
-		fmt.Printf("Error: %s", err.Error())
-	} else {
-		err = os.WriteFile(folder+"trees.json", b, 0644)
 		if err != nil {
-			log.Fatal(err)
+			fmt.Printf("Error: %s", err.Error())
+		} else {
+			str := folder + "trees/" + v.key + ".json"
+			err = os.WriteFile(str, b, 0644)
+			if err != nil {
+				log.Fatal(err)
+			}
 		}
+
+		export = make(map[string]expGraph)
+
 	}
+
 }
 
 func exportNames(dict dictInterface) {

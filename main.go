@@ -4,10 +4,10 @@ func main() {
 
 	//handleServer("wnSol.json")
 
-	dict := LoadDict()
-	//dict := LoadWNDict()
+	//dict := LoadDict()
+	dict := LoadWNDict()
 
-	Solve(dict)
+	//Solve(dict)
 
 	//reconstructWord(dict, "happy", "delNodes.json")
 
@@ -23,7 +23,7 @@ func main() {
 
 	//dictVerify(dict, "cullNodes.json")
 
-	//exportTrees(dict, "delNodes.json")
+	exportTrees(dict, "delNodes.json")
 
 	//exportNames(dict)
 
