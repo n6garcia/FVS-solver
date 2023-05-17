@@ -2,9 +2,7 @@
 
 ### `What is the smallest set of words that can be used to define every word in the dictionary?`
 
-### Note: If you like the mind expanding material leave a star¡ ::3
-
-### Author: Noel Garcia - n6garcia@ucsd.edu - The Essential #1124 (5595 Lindo Paseo, San Diego, CA 92115)
+### Author: Noel Garcia - n6garcia@ucsd.edu
 
 ## Introduction
 
