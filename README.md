@@ -12,7 +12,7 @@ Using the algorithmn that I created to solve this question I was able to define 
 
 Let's explain the general setup for the graph from the dictionary. let W be a set of words and w ∈ W then def(w) = S where S is the set of unique words in the definition of the word w. LET G = (V,E) where V = (v ∈ W ∩ def(W)) and E = (eij | i ∈ def(w), j ∈ w where w ∈ W). This will exactly give you the graph G where one can find "the smallest set of words" from a minimum FVS. Let's define FVS just so we are completely clear on that, a subset S of V(G) is a directed Feedback Vertex Set (FVS), if the induced subgraph V(G) \ S is acyclic.
 
-## Directed FVS Approximation Algorithm
+## Garcia's Algorithm
 
 Start with any directed graph G.
 
