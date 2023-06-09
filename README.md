@@ -2,7 +2,7 @@
 
 ### `What is the smallest set of words that can be used to define every word in the dictionary?`
 
-### Author: Noel Garcia - n6garcia@ucsd.edu
+### Author: Noel Garcia - n6garcia@ucsd.edu - noeldev.site
 
 ## Introduction
 
