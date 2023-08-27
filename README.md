@@ -4,7 +4,7 @@
 
 ### Author: Noel Garcia - n6garcia@ucsd.edu - https://noeldev.site/
 
-### Time Complexity : O(N) : Solves 100k nodes in ~400ms on an ancient laptop
+### Algorithmn Time Complexity : O(N) : Solves 100k nodes in ~400ms on an ancient laptop
 
 ## Introduction
 
