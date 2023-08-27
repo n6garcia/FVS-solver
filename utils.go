@@ -370,22 +370,6 @@ func gHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-type node struct {
-	Name string `json:"name"`
-}
-
-type link struct {
-	Source string `json:"source"`
-	Target string `json:"target"`
-}
-
-type expGraph struct {
-	Nodes []node `json:"nodes"`
-	Links []link `json:"links"`
-}
-
-var SOL map[string][]string
-
 func handleServer(fn string) {
 	fmt.Println("starting server...")
 
@@ -411,6 +395,22 @@ func handleServer(fn string) {
 
 	log.Fatal(http.ListenAndServe(":3001", nil))
 }
+
+type node struct {
+	Name string `json:"name"`
+}
+
+type link struct {
+	Source string `json:"source"`
+	Target string `json:"target"`
+}
+
+type expGraph struct {
+	Nodes []node `json:"nodes"`
+	Links []link `json:"links"`
+}
+
+var SOL map[string][]string
 
 func exportTrees(dict dictInterface, fn string) {
 	folder := dict.getFolder()

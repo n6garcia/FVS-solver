@@ -19,6 +19,117 @@ type Vertex struct {
 	inList  []*Vertex
 }
 
+func modLen(li []*Vertex) int {
+	count := 0
+
+	for _, v := range li {
+		if v.key != "" {
+			count += 1
+		}
+	}
+
+	return count
+
+}
+
+/* PQ implementation */
+
+// An Item is something we manage in a priority queue.
+type Item struct {
+	value    *Vertex // The value of the item; arbitrary.
+	priority int     // The priority of the item in the queue.
+	// The index is needed by update and is maintained by the heap.Interface methods.
+	index int // The index of the item in the heap.
+}
+
+// A PriorityQueue implements heap.Interface and holds Items.
+type PriorityQueue []*Item
+
+func (pq PriorityQueue) Len() int { return len(pq) }
+
+func (pq PriorityQueue) Less(i, j int) bool {
+	// We want Pop to give us the highest, not lowest, priority so we use greater than here.
+	return pq[i].priority > pq[j].priority
+}
+
+func (pq PriorityQueue) Swap(i, j int) {
+	pq[i], pq[j] = pq[j], pq[i]
+	pq[i].index = i
+	pq[j].index = j
+}
+
+func (pq *PriorityQueue) Push(x any) {
+	n := len(*pq)
+	item := x.(*Item)
+	item.index = n
+	*pq = append(*pq, item)
+}
+
+func (pq *PriorityQueue) Pop() any {
+	old := *pq
+	n := len(old)
+	item := old[n-1]
+	old[n-1] = nil  // avoid memory leak
+	item.index = -1 // for safety
+	*pq = old[0 : n-1]
+	return item
+}
+
+// update modifies the priority and value of an Item in the queue.
+func (pq *PriorityQueue) update(item *Item, value *Vertex, priority int) {
+	item.value = value
+	item.priority = priority
+	heap.Fix(pq, item.index)
+}
+
+/* Priority Queue Functions */
+
+func (g *Graph) pqInit() {
+	fmt.Println("initializing PQ...")
+
+	g.pq = make(PriorityQueue, len(g.vertices))
+	i := 0
+	for _, v := range g.vertices {
+		g.pq[i] = &Item{
+			value:    v,
+			priority: modLen(v.outList),
+			index:    i,
+		}
+		i++
+	}
+	heap.Init(&g.pq)
+
+	for _, item := range g.pq {
+		g.pqMap[item.value.key] = item
+	}
+}
+
+func (g *Graph) pqRemove(k string) {
+	item, ok := g.pqMap[k]
+
+	if ok {
+
+		heap.Remove(&g.pq, item.index)
+		delete(g.pqMap, k)
+
+	}
+
+}
+
+// only should be used if encountering errors with PQ after pqUpdateList
+func (g *Graph) pqReshuffle() {
+	heap.Init(&g.pq)
+}
+
+func (g *Graph) pqUpdateList(delList []*Vertex) {
+	for _, v := range delList {
+		item, ok := g.pqMap[v.key]
+		if ok {
+			g.pq.update(item, v, modLen(v.outList))
+		}
+	}
+}
+
 /* Graph Population Functions */
 
 // adds vertex to graph with key k, will not add duplicates
@@ -69,7 +180,7 @@ func (g *Graph) getVertex(k string) *Vertex {
 }
 
 // Deletes Vertex from graph, Warning: Doesn't delete null ptrs in adjacency lists
-// Please always use modLen()
+// Please always use modLen() to not count nil values in list
 func (g *Graph) DeleteVertex(k string) []*Vertex {
 	val, ok := g.vertices[k]
 
@@ -89,19 +200,6 @@ func (g *Graph) DeleteVertex(k string) []*Vertex {
 	}
 
 	return []*Vertex{}
-
-}
-
-func modLen(li []*Vertex) int {
-	count := 0
-
-	for _, v := range li {
-		if v.key != "" {
-			count += 1
-		}
-	}
-
-	return count
 
 }
 
@@ -147,6 +245,106 @@ func (g *Graph) PrintSize() {
 // Returns Graph Size
 func (g *Graph) Size() int {
 	return len(g.vertices)
+}
+
+/* FVS Functions */
+
+func (g *Graph) FVS() []string {
+	fmt.Println("searching for FVS...")
+
+	g.firstPop()
+
+	var delNodes []string
+
+	for g.Size() != 0 {
+		delNodes = append(delNodes, g.delHighest())
+	}
+
+	return delNodes
+}
+
+func (g *Graph) top() []string {
+	fmt.Println("finding free words...")
+
+	var freeWords []string
+
+	for _, v := range g.vertices {
+		if modLen(v.inList) == 0 {
+			freeWords = append(freeWords, v.key)
+		}
+	}
+
+	return freeWords
+}
+
+// only used for first pop
+func (g *Graph) pop() (int, []*Vertex) {
+	pops := 0
+	var delList []*Vertex
+	var li []*Vertex
+
+	for _, v := range g.vertices {
+		if len(v.inList) == 0 {
+			li = g.DeleteVertex(v.key)
+			delList = append(delList, li...)
+			pops++
+		}
+	}
+
+	g.pqUpdateList(delList)
+
+	return pops, delList
+}
+
+func (g *Graph) popList(outLi []*Vertex) (int, []*Vertex) {
+	pops := 0
+	var delList []*Vertex
+	var li []*Vertex
+
+	for _, v := range outLi {
+		if modLen(v.inList) == 0 {
+			li = g.DeleteVertex(v.key)
+			delList = append(delList, li...)
+			pops++
+		}
+
+	}
+
+	g.pqUpdateList(delList)
+
+	return pops, delList
+}
+
+func (g *Graph) firstPop() {
+	pops, delList := g.pop()
+
+	for pops != 0 {
+		pops, delList = g.popList(delList)
+	}
+}
+
+func (g *Graph) delHighest() string {
+	vert := g.findHighest()
+	key := vert.key
+
+	delList := g.DeleteVertex(vert.key)
+
+	g.pqUpdateList(delList)
+
+	pops, delList := g.popList(delList)
+
+	for pops != 0 {
+		pops, delList = g.popList(delList)
+	}
+
+	return key
+}
+
+func (g *Graph) findHighest() *Vertex {
+	item := heap.Pop(&g.pq).(*Item)
+	delete(g.pqMap, item.value.key)
+
+	return item.value
 }
 
 /* verify Functions */
@@ -400,206 +598,4 @@ func (g *Graph) simAnneal(initial []string, listFree []string) []string {
 
 	}
 
-}
-
-/* FVS Functions */
-
-func (g *Graph) FVS() []string {
-	fmt.Println("searching for FVS...")
-
-	g.firstPop()
-
-	var delNodes []string
-
-	for g.Size() != 0 {
-		delNodes = append(delNodes, g.delHighest())
-	}
-
-	return delNodes
-}
-
-func (g *Graph) top() []string {
-	fmt.Println("finding free words...")
-
-	var freeWords []string
-
-	for _, v := range g.vertices {
-		if modLen(v.inList) == 0 {
-			freeWords = append(freeWords, v.key)
-		}
-	}
-
-	return freeWords
-}
-
-// only used for first pop
-func (g *Graph) pop() (int, []*Vertex) {
-	pops := 0
-	var delList []*Vertex
-	var li []*Vertex
-
-	for _, v := range g.vertices {
-		if len(v.inList) == 0 {
-			li = g.DeleteVertex(v.key)
-			delList = append(delList, li...)
-			pops++
-		}
-	}
-
-	g.pqShuffle()
-	g.pqUpdateList(delList)
-
-	return pops, delList
-}
-
-func (g *Graph) popList(outLi []*Vertex) (int, []*Vertex) {
-	pops := 0
-	var delList []*Vertex
-	var li []*Vertex
-
-	for _, v := range outLi {
-		if modLen(v.inList) == 0 {
-			li = g.DeleteVertex(v.key)
-			delList = append(delList, li...)
-			pops++
-		}
-
-	}
-
-	g.pqShuffle()
-	g.pqUpdateList(delList)
-
-	return pops, delList
-}
-
-func (g *Graph) firstPop() {
-	pops, delList := g.pop()
-
-	for pops != 0 {
-		pops, delList = g.popList(delList)
-	}
-}
-
-func (g *Graph) delHighest() string {
-	vert := g.findHighest()
-	key := vert.key
-
-	delList := g.DeleteVertex(vert.key)
-
-	g.pqShuffle()
-	g.pqUpdateList(delList)
-
-	pops, delList := g.popList(delList)
-
-	for pops != 0 {
-		pops, delList = g.popList(delList)
-	}
-
-	return key
-}
-
-func (g *Graph) findHighest() *Vertex {
-	item := heap.Pop(&g.pq).(*Item)
-	delete(g.pqMap, item.value.key)
-
-	return item.value
-}
-
-/* Priority Queue Functions */
-
-func (g *Graph) pqInit() {
-	fmt.Println("initializing PQ...")
-
-	g.pq = make(PriorityQueue, len(g.vertices))
-	i := 0
-	for _, v := range g.vertices {
-		g.pq[i] = &Item{
-			value:    v,
-			priority: modLen(v.outList),
-			index:    i,
-		}
-		i++
-	}
-	heap.Init(&g.pq)
-
-	for _, item := range g.pq {
-		g.pqMap[item.value.key] = item
-	}
-}
-
-func (g *Graph) pqRemove(k string) {
-	item, ok := g.pqMap[k]
-
-	if ok {
-
-		heap.Remove(&g.pq, item.index)
-		delete(g.pqMap, k)
-
-	}
-
-}
-
-// call after all removePQ calls are done to reinitialize PQ ordering!
-func (g *Graph) pqShuffle() {
-	heap.Init(&g.pq)
-}
-
-// Must Call after ClearLists if using PQ!
-func (g *Graph) pqUpdateList(delList []*Vertex) {
-	for _, v := range delList {
-		item, ok := g.pqMap[v.key]
-		if ok {
-			g.pq.update(item, v, modLen(v.outList))
-		}
-	}
-}
-
-/* PQ implementation */
-
-// An Item is something we manage in a priority queue.
-type Item struct {
-	value    *Vertex // The value of the item; arbitrary.
-	priority int     // The priority of the item in the queue.
-	// The index is needed by update and is maintained by the heap.Interface methods.
-	index int // The index of the item in the heap.
-}
-
-// A PriorityQueue implements heap.Interface and holds Items.
-type PriorityQueue []*Item
-
-func (pq PriorityQueue) Len() int { return len(pq) }
-
-func (pq PriorityQueue) Less(i, j int) bool {
-	// We want Pop to give us the highest, not lowest, priority so we use greater than here.
-	return pq[i].priority > pq[j].priority
-}
-
-func (pq PriorityQueue) Swap(i, j int) {
-	pq[i], pq[j] = pq[j], pq[i]
-	pq[i].index = i
-	pq[j].index = j
-}
-
-func (pq *PriorityQueue) Push(x any) {
-	n := len(*pq)
-	item := x.(*Item)
-	item.index = n
-	*pq = append(*pq, item)
-}
-
-func (pq *PriorityQueue) Pop() any {
-	old := *pq
-	n := len(old)
-	item := old[n-1]
-	old[n-1] = nil  // avoid memory leak
-	item.index = -1 // for safety
-	*pq = old[0 : n-1]
-	return item
-}
-
-// update modifies the priority and value of an Item in the queue.
-func (pq *PriorityQueue) update(item *Item, value *Vertex, priority int) {
-	item.value = value
-	item.priority = priority
-	heap.Fix(pq, item.index)
 }
