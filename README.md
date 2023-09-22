@@ -1,6 +1,6 @@
-# Dictionary-Problem - [Minimum Directed Feedback Vertex Set]
+# Minimum Directed Feedback Vertex Set Approximation Algorithm in Polynomial Time AKA Dictionary Problem
 
-### `What is the smallest set of words that can be used to define every word in the dictionary?`
+### Motivation/Question - `What is the smallest set of words that can be used to define every word in the dictionary?`
 
 ### Author: Noel Garcia - n6garcia@ucsd.edu - https://noeldev.site/
 
