@@ -14,7 +14,7 @@ Using the algorithmn that I created to solve this question I was able to define 
 
 Let's explain the general setup for the graph from the dictionary. let W be a set of words and w ∈ W then def(w) = S where S is the set of unique words in the definition of the word w. LET G = (V,E) where V = (v ∈ W ∩ def(W)) and E = (eij | i ∈ def(w), j ∈ w where w ∈ W). This will exactly give you the graph G where one can find "the smallest set of words" from a minimum FVS. Let's define FVS just so we are completely clear on that, a subset S of V(G) is a directed Feedback Vertex Set (FVS), if the induced subgraph V(G) \ S is acyclic.
 
-## Garcia's Algorithm
+## Min DFVS Approximation Algorithm
 
 Start with any directed graph G.
 
@@ -24,9 +24,8 @@ Start with any directed graph G.
 
 The set X is your FVS.
 
-## Analysis
-
-I have so far been unable to determine the size of the minimum FVS for each of the two dictionaries that I implemented. The reason why that is so is because the best solution to the directed min. FVS problem is O(1.9977^N) by Igor Razgon. That is practically O(2^N), at O(2^N) worst time complexity this gives us a worst time of O(2^110,301) or O(Infinity) according to the google calculator! I've tried using already coded FVS algorithmns found online but even after an entire 24 hours or running what seemed to be the best solution that I figured my solution was better in the long run. In contrast to the algorithm that finds the minimum FVS, my approximation algorithm only takes about 400ms to run on my ancient hardware. I'd say that my algorithm is really good when it comes to coming up with fast solutions. My approximation algorithm might not get perfect results but I think that around less than 7% of vertices in the FVS I think that this solution is more than optimal for its use in this application. There is the problem of the legibility of reconstructed answers, it could be that our solution also maximizes the amount of connections that aren't being made anymore in a DFS. I noticed that the solutions I got on my first dictionary included a lot of words like 'of', 'that', 'is', etc. getting rid of those words even if not neccessary from the solution would cause the reconstructed words to balloon in size because of how frequently those words are used in definitions. Maybe it is a little good that my algorithmn doesn't provide perfect solutions to the original problem. I've had experience with this because I have done something called culling the solutions my algorithm makes. it turns out not every word that gets deleted during my algorithm is necessary for a complete solution. I had a verifier verify that my solutions would give functional solutions and went about deleting unneccessary words from my solution set one-by-one. I made a solution so good that even though it verifies it causes my word redefiner to crash because of too many stack frames being opened and my expanded definition becoming freakishly large. At that point is it even worth it if the redifined definition becomes so large it's unreadable. I'd like to say that because of the way I set up the WordNet dictionary up that it is much more readable than my first dictionary's results from my algorithm.
+Disclaimer: I created and developed this algorithm entirely with no knowledge of the literature on DFVS approximation.
+I created and began work on this algorithm in (2020), as of now (late 2023) I have found my exact algorithm published in 1988 [1].
 
 ## Website
 
@@ -37,5 +36,9 @@ https://noeldev.site/search/search.html
 ## Dataset(s)
 
 https://www.bragitoff.com/2016/03/english-dictionary-in-csv-format/
-
 WordNet
+
+## Reference(s)
+
+[1] Hanoch Levy, David W Low, A contraction algorithm for finding small cycle cutsets, Journal of Algorithms, Volume 9, Issue 4, 1988, Pages 470-493,
+    ISSN 0196-6774, https://doi.org/10.1016/0196-6774(88)90013-2. (https://www.sciencedirect.com/science/article/pii/0196677488900132)
