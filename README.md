@@ -25,7 +25,6 @@ Start with any directed graph G.
 The set X is your FVS.
 
 Disclaimer: I created and developed this algorithm entirely with no knowledge of the literature on DFVS approximation.
-
 I created and began work on this algorithm in (2020), as of now (late 2023) I have found my exact algorithm published in 1988 [1].
 
 ## Website
