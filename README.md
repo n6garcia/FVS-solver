@@ -37,7 +37,7 @@ https://noeldev.site/search/search.html
 
 https://www.bragitoff.com/2016/03/english-dictionary-in-csv-format/
 
-WordNet
+WordNet®
 
 ## Reference(s)
 
