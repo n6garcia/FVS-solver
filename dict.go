@@ -9,16 +9,16 @@ import (
 )
 
 type dictInterface interface {
+	getFolder() string
+	getNames() []string
+	getDef(string) string
 	Print()
 	PrintSize()
 	loadData(string)
 	AddData(*Graph)
-	getDef(string) string
 	expandDef([]string, string) string
 	verify([]string) bool
 	export([]string) map[string][]string
-	getFolder() string
-	getNames() []string
 }
 
 type Dictionary struct {
@@ -46,6 +46,29 @@ func (d *Dictionary) getNames() []string {
 	return names
 }
 
+func (d *Dictionary) getDef(k string) string {
+	if k == "" {
+		return ""
+	}
+	defn, ok := d.definitions[k]
+	if ok {
+
+		var str string
+
+		for i, val := range defn.words {
+			if i == 0 {
+				str = str + val
+			} else {
+				str = str + " " + val
+			}
+		}
+
+		return str
+	} else {
+		return ""
+	}
+}
+
 func (d *Dictionary) Print() {
 	for _, v := range d.definitions {
 		fmt.Println("name: ", v.name)
@@ -57,11 +80,7 @@ func (d *Dictionary) PrintSize() {
 	fmt.Println("\nsize : ", len(d.definitions))
 }
 
-func (d *Dictionary) addDef(n string, w []string) {
-	defn := &Definition{name: n, words: w}
-	d.definitions[n] = defn
-}
-
+// Loads Data from File(s) into memory
 func (d *Dictionary) loadData(fn string) {
 	bytes, err := os.ReadFile("wrangle/cleaned/" + fn) // just pass the file name
 	if err != nil {
@@ -84,6 +103,12 @@ func (d *Dictionary) loadData(fn string) {
 	}
 }
 
+// Helper Function : loadData
+func (d *Dictionary) addDef(n string, w []string) {
+	defn := &Definition{name: n, words: w}
+	d.definitions[n] = defn
+}
+
 // Transfers Data in Dictionary to Graph
 func (d *Dictionary) AddData(g *Graph) {
 	fmt.Println("adding data to graph...")
@@ -97,7 +122,7 @@ func (d *Dictionary) AddData(g *Graph) {
 
 	for _, v := range d.definitions {
 		for _, word := range v.words {
-			// word defines name .. a defines b¡
+			// a defines b .. word defines name
 			if word != v.name {
 				g.AddEdge(word, v.name)
 			}
@@ -106,6 +131,8 @@ func (d *Dictionary) AddData(g *Graph) {
 
 }
 
+// very slow implementation!
+// recursion is slowing down runtime!
 func (d *Dictionary) expandDef(delNodes []string, k string) string {
 	wordMap := make(map[string]bool)
 	var defn []string
@@ -160,6 +187,7 @@ func (d *Dictionary) expandDef(delNodes []string, k string) string {
 	return str
 }
 
+// Helper Function : expandDef
 func (d *Dictionary) recursiveSearch(wordMap map[string]bool, k string) []string {
 	val, ok := wordMap[k]
 	if !ok || val {
@@ -192,7 +220,7 @@ func (d *Dictionary) recursiveSearch(wordMap map[string]bool, k string) []string
 	}
 }
 
-// for use in recursiveSearch
+// Helper function : expandDef
 func (d *Dictionary) findDef(k string) []string {
 	defn, ok := d.definitions[k]
 	if ok {
@@ -202,32 +230,8 @@ func (d *Dictionary) findDef(k string) []string {
 	}
 }
 
-// for use in main()
-func (d *Dictionary) getDef(k string) string {
-	if k == "" {
-		return ""
-	}
-	defn, ok := d.definitions[k]
-	if ok {
-
-		var str string
-
-		for i, val := range defn.words {
-			if i == 0 {
-				str = str + val
-			} else {
-				str = str + " " + val
-			}
-		}
-
-		return str
-	} else {
-		return ""
-	}
-}
-
 // very slow implementation!
-// implementation takes about 1hr40m on my computer to run (average hardware)
+// implementation takes hours on my computer to run w/ current speed of expandDef!
 func (d *Dictionary) verify(delNodes []string) bool {
 
 	fmt.Println("verifying...")
@@ -240,6 +244,8 @@ func (d *Dictionary) verify(delNodes []string) bool {
 
 }
 
+// very slow implementation!
+// implementation takes hours on my computer to run w/ current speed of expandDef!
 func (d *Dictionary) export(delNodes []string) map[string][]string {
 	fmt.Println("exporting...")
 
@@ -282,6 +288,19 @@ func (wn *WNdict) getNames() []string {
 	return names
 }
 
+func (wn *WNdict) getDef(k string) string {
+	var str string = ""
+
+	val, ok := wn.definitions[k]
+	if ok {
+		for idx, def := range val {
+			str = str + strconv.Itoa(idx+1) + ". " + def.origDef + "\n"
+		}
+	}
+
+	return str
+}
+
 func (wn *WNdict) Print() {
 	for _, v := range wn.definitions {
 		for _, d := range v {
@@ -295,11 +314,7 @@ func (wn *WNdict) PrintSize() {
 	fmt.Println("\nsize : ", len(wn.definitions))
 }
 
-func (wn *WNdict) addDef(ID string, def *WNdef) {
-	wn.IDMappings[ID] = def
-	wn.definitions[def.name] = append(wn.definitions[def.name], def)
-}
-
+// Loads Data from File(s) into memory
 func (wn *WNdict) loadData(fn string) {
 	bytes, err := os.ReadFile("wrangle/wordnet/" + fn) // just pass the file name
 	if err != nil {
@@ -338,6 +353,13 @@ func (wn *WNdict) loadData(fn string) {
 	}
 }
 
+// Helper Function : loadData
+func (wn *WNdict) addDef(ID string, def *WNdef) {
+	wn.IDMappings[ID] = def
+	wn.definitions[def.name] = append(wn.definitions[def.name], def)
+}
+
+// Transfers Data in Dictionary to Graph
 func (wn *WNdict) AddData(g *Graph) {
 	fmt.Println("adding data to graph...")
 
@@ -364,6 +386,7 @@ func (wn *WNdict) AddData(g *Graph) {
 	}
 }
 
+// very slow implementation!
 func (wn *WNdict) expandDef(delNodes []string, k string) string {
 	wordMap := make(map[string]bool)
 
@@ -406,6 +429,7 @@ func (wn *WNdict) expandDef(delNodes []string, k string) string {
 	return out
 }
 
+// Helper Function : expandDef
 func (wn *WNdict) recursiveSearch(wordMap map[string]bool, ID string, k string) string {
 	val, ok := wordMap[k]
 	if !ok || val {
@@ -429,6 +453,7 @@ func (wn *WNdict) recursiveSearch(wordMap map[string]bool, ID string, k string) 
 	}
 }
 
+// Helper Function : expandDef
 func (wn *WNdict) findDef(ID string) *WNdef {
 	defn, ok := wn.IDMappings[ID]
 	if ok {
@@ -438,7 +463,7 @@ func (wn *WNdict) findDef(ID string) *WNdef {
 	}
 }
 
-// for use in recursiveSearch
+// Helper Function : expandDef
 func (wn *WNdict) findDefArr(k string) []*WNdef {
 	defn, ok := wn.definitions[k]
 	if ok {
@@ -448,21 +473,7 @@ func (wn *WNdict) findDefArr(k string) []*WNdef {
 	}
 }
 
-// for use in main()
-func (wn *WNdict) getDef(k string) string {
-	var str string = ""
-
-	val, ok := wn.definitions[k]
-	if ok {
-		for idx, def := range val {
-			str = str + strconv.Itoa(idx+1) + ". " + def.origDef + "\n"
-		}
-	}
-
-	return str
-}
-
-// very slow implementation! BUT TRUTHFUL!
+// very slow implementation!
 func (wn *WNdict) verify(delNodes []string) bool {
 
 	fmt.Println("verifying...")
@@ -476,6 +487,7 @@ func (wn *WNdict) verify(delNodes []string) bool {
 
 }
 
+// very slow implementation!
 func (d *WNdict) export(delNodes []string) map[string][]string {
 	fmt.Println("exporting...")
 
