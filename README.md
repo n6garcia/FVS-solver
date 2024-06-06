@@ -25,12 +25,6 @@ The set X is your FVS.
 Disclaimer: I created and developed this algorithm entirely with litte knowledge of the sparse literature on DFVS approximation.
 I created and began work on this algorithm in time with the PACE 2022 DFVS competition and I have found my exact algorithm published by Levy & Low on 1988 in [1].
 
-## Website
-
-An application of the FVS algorithm on my website where definitions of any word can be searched up and defined using only words in the FVS.
-
-https://noeldev.site/search/search.html
-
 ## Dataset(s)
 
 https://www.bragitoff.com/2016/03/english-dictionary-in-csv-format/
