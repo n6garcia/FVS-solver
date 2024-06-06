@@ -2,7 +2,7 @@
 
 ### Motivation/Question (Dictionary Problem) - What is the smallest set of words that can be used to define every word in the dictionary?
 
-### Algorithmn Time Complexity : O(N\*Log(N)) : Solves 100k nodes in ~400ms
+### Solves 100k nodes in ~400ms!
 
 ## Introduction
 
