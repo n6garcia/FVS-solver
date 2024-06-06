@@ -2,7 +2,7 @@
 
 ### Motivation/Question (Dictionary Problem) - What is the smallest set of words that can be used to define every word in the dictionary?
 
-### Solves 100k nodes in ~400ms!
+### Benchmark: Solves 100k nodes in ~400ms!
 
 ## Introduction
 
