@@ -1,8 +1,6 @@
 # Minimum Directed Feedback Vertex Set Approximation Algorithm AKA Dictionary Problem
 
-### Motivation/Question (Dictionary Problem) - `What is the smallest set of words that can be used to define every word in the dictionary?`
-
-### Author: Noel Garcia - n6garcia@ucsd.edu - https://noeldev.site/
+### Motivation/Question (Dictionary Problem) - `What is the smallest set of words that can be used to define every word in the dictionary?
 
 ### Algorithmn Time Complexity : O(N\*Log(N)) : Solves 100k nodes in ~400ms
 
