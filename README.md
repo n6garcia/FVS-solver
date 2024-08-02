@@ -1,4 +1,4 @@
-# FVS-Solver
+# Go-DFVS-Solver
 
 ## Minimum Directed Feedback Vertex Set Approximation Algorithm AKA Dictionary Problem
 
